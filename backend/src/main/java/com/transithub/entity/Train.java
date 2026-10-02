@@ -5,6 +5,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
+import java.math.BigDecimal;
+
 /** A train service. */
 @Entity
 @DiscriminatorValue("TRAIN")
@@ -27,5 +29,18 @@ public class Train extends Transportation {
 
     public void setNumberOfCars(int numberOfCars) {
         this.numberOfCars = ValidationUtils.requirePositive(numberOfCars, "Number of cars");
+    }
+
+    @Override
+    public String getTransportationType() {
+        return "Train";
+    }
+
+    /** Train: rate x distance, but never less than the minimum (base) fare. */
+    @Override
+    public BigDecimal calculateFare(double distanceKm, Fare fareRule) {
+        checkFareInputs(distanceKm, fareRule);
+        BigDecimal byDistance = fareRule.getPerKmRate().multiply(BigDecimal.valueOf(distanceKm));
+        return toPesos(fareRule.getBaseFare().max(byDistance));
     }
 }

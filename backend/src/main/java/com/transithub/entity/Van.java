@@ -5,6 +5,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 /** A van (UV Express style) service. */
 @Entity
 @DiscriminatorValue("VAN")
@@ -27,5 +30,18 @@ public class Van extends Transportation {
 
     public void setSeatingCapacity(int seatingCapacity) {
         this.seatingCapacity = ValidationUtils.requirePositive(seatingCapacity, "Seating capacity");
+    }
+
+    @Override
+    public String getTransportationType() {
+        return "Van";
+    }
+
+    /** Van: base fare + rate x distance, rounded UP to a whole peso (vans collect whole pesos). */
+    @Override
+    public BigDecimal calculateFare(double distanceKm, Fare fareRule) {
+        checkFareInputs(distanceKm, fareRule);
+        BigDecimal wholePesos = distanceBasedFare(distanceKm, fareRule).setScale(0, RoundingMode.UP);
+        return toPesos(wholePesos);
     }
 }

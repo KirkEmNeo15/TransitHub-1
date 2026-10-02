@@ -21,6 +21,7 @@ import jakarta.persistence.OrderBy;
 import jakarta.persistence.OrderColumn;
 import jakarta.persistence.Table;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -235,5 +236,19 @@ public class Route {
     public void addSchedule(Schedule schedule) {
         ValidationUtils.requireNonNull(schedule, "Schedule").attachTo(this);
         schedules.add(schedule);
+    }
+
+    // ---------- behavior ----------
+
+    /**
+     * The fare for this whole route. The route does not know which type of transportation
+     * it has: it just asks, and the right subclass (Bus, Jeepney, ...) answers.
+     * This is polymorphism (dynamic method dispatch).
+     */
+    public BigDecimal calculateFare() {
+        if (fare == null) {
+            throw new IllegalStateException("Route " + routeCode + " has no fare rule");
+        }
+        return transportation.calculateFare(distanceKm, fare);
     }
 }
