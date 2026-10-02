@@ -41,7 +41,7 @@ _Filled in as features are built (Phases 3–16)._
 transithub/
 ├── frontend/     React + TypeScript (Vite)
 ├── backend/      Spring Boot (Maven)
-├── database/seed/  Sample SQL/data notes
+├── database/     schema.sql (tables) and seed/sample-data.sql (demo data)
 ├── docs/         OOP-DESIGN.md and other documents
 ├── .env.example  Template for environment variables
 ├── docker-compose.yml  Local PostgreSQL
@@ -77,6 +77,21 @@ Open `.env` and set your own values.
 docker compose up -d
 docker compose ps        # STATUS should become "healthy"
 ```
+On the **first start with an empty database**, Docker automatically runs
+`database/schema.sql` (tables) and `database/seed/sample-data.sql` (demo data).
+
+If the database already existed before these files were added, apply them once by hand
+(Git Bash / macOS / Linux):
+```bash
+docker exec -i transithub-db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"' < database/schema.sql
+docker exec -i transithub-db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"' < database/seed/sample-data.sql
+```
+Windows PowerShell: `Get-Content database/schema.sql | docker exec -i transithub-db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"'`
+
+Reset everything (**deletes all database data**): `docker compose down -v` then `docker compose up -d`.
+
+### Database documentation
+See [docs/DATABASE-DESIGN.md](docs/DATABASE-DESIGN.md) for the ERD and design decisions.
 
 ## OOP Principles Demonstrated
 _Completed in Phase 18. See [docs/OOP-DESIGN.md](docs/OOP-DESIGN.md)._
