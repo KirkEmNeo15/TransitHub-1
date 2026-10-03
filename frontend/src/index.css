@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+/* TransitHub colors. Tailwind turns each --color-* into classes,
+   for example bg-primary, text-secondary, border-danger. */
+@theme {
+  --color-primary: #2563eb;
+  --color-secondary: #0f172a;
+  --color-background: #f8fafc;
+  --color-success: #16a34a;
+  --color-warning: #f59e0b;
+  --color-danger: #dc2626;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-background);
+  color: var(--color-secondary);
+}
