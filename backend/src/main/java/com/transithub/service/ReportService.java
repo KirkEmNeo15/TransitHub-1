@@ -47,6 +47,14 @@ public class ReportService {
         return reportMapper.toResponse(reportRepository.save(report));
     }
 
+    /** The reports sent by one user, newest first. */
+    @Transactional(readOnly = true)
+    public List<ReportResponse> getMyReports(Long userId) {
+        return reportRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
+                .map(reportMapper::toResponse)
+                .toList();
+    }
+
     /** For admins: all reports, or only those with a given status. Newest first. */
     @Transactional(readOnly = true)
     public List<ReportResponse> getReports(ReportStatus status) {
