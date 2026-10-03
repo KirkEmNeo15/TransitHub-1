@@ -8,8 +8,17 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalTime;
 
 public record ScheduleRequest(
-        @NotNull LocalTime firstTrip,
-        @NotNull LocalTime lastTrip,
-        @NotNull @Min(1) Integer frequencyMinutes,
-        @NotBlank @Size(max = 50) String daysOperating) {
+        @NotNull(message = "First trip time is required")
+        LocalTime firstTrip,
+
+        @NotNull(message = "Last trip time is required")
+        LocalTime lastTrip,
+
+        @NotNull(message = "Frequency is required")
+        @Min(value = 1, message = "Frequency must be at least 1 minute")
+        Integer frequencyMinutes,
+
+        @NotBlank(message = "Days operating cannot be empty")
+        @Size(max = 50, message = "Days operating must be at most 50 characters")
+        String daysOperating) {
 }

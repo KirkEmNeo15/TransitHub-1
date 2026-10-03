@@ -14,18 +14,49 @@ import java.util.List;
 
 /** Data an admin sends to create or update a route. */
 public record RouteRequest(
-        @NotBlank @Size(max = 30) String routeCode,
-        @NotBlank @Size(max = 150) String routeName,
-        @NotBlank @Size(max = 100) String origin,
-        @NotBlank @Size(max = 100) String destination,
-        @NotNull RouteStatus status,
-        @NotNull @Min(1) Integer estimatedMinutes,
-        @NotNull @Positive Double distanceKm,
-        @NotNull Long transportationId,
-        @NotNull @Valid FareRequest fare,
-        @NotEmpty(message = "A route needs at least 2 stops") @Valid List<RouteStopRequest> stops,
+        @NotBlank(message = "Route code cannot be empty")
+        @Size(max = 30, message = "Route code must be at most 30 characters")
+        String routeCode,
+
+        @NotBlank(message = "Route name cannot be empty")
+        @Size(max = 150, message = "Route name must be at most 150 characters")
+        String routeName,
+
+        @NotBlank(message = "Origin cannot be empty")
+        @Size(max = 100, message = "Origin must be at most 100 characters")
+        String origin,
+
+        @NotBlank(message = "Destination cannot be empty")
+        @Size(max = 100, message = "Destination must be at most 100 characters")
+        String destination,
+
+        @NotNull(message = "Status is required (ACTIVE, INACTIVE or SUSPENDED)")
+        RouteStatus status,
+
+        @NotNull(message = "Estimated travel time is required")
+        @Min(value = 1, message = "Estimated travel time must be at least 1 minute")
+        Integer estimatedMinutes,
+
+        @NotNull(message = "Distance is required")
+        @Positive(message = "Distance must be greater than 0")
+        Double distanceKm,
+
+        @NotNull(message = "Transportation is required")
+        Long transportationId,
+
+        @NotNull(message = "Fare is required")
+        @Valid
+        FareRequest fare,
+
+        @NotEmpty(message = "A route needs at least 2 stops")
+        @Valid
+        List<RouteStopRequest> stops,
+
         // optional: when empty, the map line is drawn through the stops
-        @Valid List<CoordinateDto> path,
+        @Valid
+        List<CoordinateDto> path,
+
         // optional
-        @Valid List<ScheduleRequest> schedules) {
+        @Valid
+        List<ScheduleRequest> schedules) {
 }

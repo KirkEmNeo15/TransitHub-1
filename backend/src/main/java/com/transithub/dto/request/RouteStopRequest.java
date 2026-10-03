@@ -5,6 +5,10 @@ import jakarta.validation.constraints.NotNull;
 
 /** One stop of a route. The ORDER of the list in the request is the order of the stops. */
 public record RouteStopRequest(
-        @NotNull Long stopId,
-        @NotNull @Min(0) Integer minutesFromStart) {
+        @NotNull(message = "Stop id is required")
+        Long stopId,
+
+        @NotNull(message = "Minutes from start is required")
+        @Min(value = 0, message = "Minutes from start cannot be negative")
+        Integer minutesFromStart) {
 }

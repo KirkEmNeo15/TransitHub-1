@@ -12,13 +12,26 @@ import jakarta.validation.constraints.Size;
  * serviceArea for SHUTTLE, numberOfCars for TRAIN).
  */
 public record TransportationRequest(
-        @NotNull TransportType type,
-        @NotBlank @Size(max = 100) String name,
-        @NotBlank @Size(max = 30) String code,
-        @Size(max = 500) String description,
+        @NotNull(message = "Type is required (BUS, JEEPNEY, VAN, SHUTTLE or TRAIN)")
+        TransportType type,
+
+        @NotBlank(message = "Name cannot be empty")
+        @Size(max = 100, message = "Name must be at most 100 characters")
+        String name,
+
+        @NotBlank(message = "Code cannot be empty")
+        @Size(max = 30, message = "Code must be at most 30 characters")
+        String code,
+
+        @Size(max = 500, message = "Description must be at most 500 characters")
+        String description,
+
         Boolean airConditioned,
         Boolean modernized,
         Integer seatingCapacity,
-        @Size(max = 100) String serviceArea,
+
+        @Size(max = 100, message = "Service area must be at most 100 characters")
+        String serviceArea,
+
         Integer numberOfCars) {
 }
