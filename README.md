@@ -5,20 +5,22 @@
 > information. TransitHub does **not** provide live GPS tracking.
 
 ## Project Description
-TransitHub is a full-stack web application where commuters can explore public
-transportation routes (bus, jeepney, van, shuttle, train) on an interactive map,
-search routes between two places, and view stops, fares and operating hours.
-Administrators manage routes, stops, transportation and alerts.
+TransitHub is a full-stack web application where commuters can explore public transportation routes such as buses, jeepneys, vans, and shuttles on an interactive map. Users can search for routes between two places and view important information such as stops, fares and operating hours. Administrators can manage routes, stops, transportation information and alerts through the system.
 
 ## Problem Being Addressed
-_TODO (team): describe the commuter problem in your own words, e.g. route
-information is scattered, outdated, or hard to find._
+Commuters may have difficulty finding transportation route information because details about routes, stops, fares and operating hours can be scattered across different sources. This can make it difficult to determine which transportation option to take, especially when users are unfamiliar with an area.
+TransitHub addresses this problem by providing a centralized system where sample transportation information can be organized, searched and displayed on an interactive map. The system allows commuters to easily explores available routes and transportation details in one place, while administrators can be update and manage the information.
+
 
 ## Project Objectives
-- Build a Java (Spring Boot) application that demonstrates abstraction, encapsulation, inheritance and polymorphism.
-- Let users view routes and stops on an OpenStreetMap-based map.
-- Let users search for routes by origin and destination.
-- Let administrators keep route information up to date.
+-Build a Java (Spring Boot) application that demonstrates abstraction, encapsulation, inheritance and polymorphism.
+-Develop a user-friendly web interface for exploring transportation routes.
+-Let users view routes and stops on an OpenStreetMap-based interactive map.
+-Let users search for routes by origin and destination.
+-Allow users to view transportation details such as fares, stops and operating hours.
+-Allow users to save favorite routes.
+-Allow users to report incorrect transportation information.
+-Provide administrators with tools to manage routes, stops, transportation and alerts.
 
 ## Target Users
 - **Commuters:** view and search routes, save favorites, report wrong information.
