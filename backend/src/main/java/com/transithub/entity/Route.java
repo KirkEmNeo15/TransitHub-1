@@ -238,6 +238,10 @@ public class Route {
         schedules.add(schedule);
     }
 
+    public void clearSchedules() {
+        schedules.clear();
+    }
+
     // ---------- behavior ----------
 
     /**

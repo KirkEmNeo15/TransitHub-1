@@ -6,6 +6,7 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 /** A shuttle service that serves a limited area (for example a mall or campus). */
 @Entity
@@ -41,5 +42,10 @@ public class Shuttle extends Transportation {
     public BigDecimal calculateFare(double distanceKm, Fare fareRule) {
         checkFareInputs(distanceKm, fareRule);
         return toPesos(fareRule.getBaseFare());
+    }
+
+    @Override
+    public Map<String, Object> getTypeDetails() {
+        return Map.of("serviceArea", serviceArea);
     }
 }

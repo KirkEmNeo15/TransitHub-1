@@ -20,6 +20,9 @@ public interface RouteRepository extends JpaRepository<Route, Long> {
 
     long countByStatus(RouteStatus status);
 
+    // Is any route still operated by this transportation service?
+    boolean existsByTransportationId(Long transportationId);
+
     // @EntityGraph loads the transportation and fare together with the routes (fewer queries)
     @EntityGraph(attributePaths = {"transportation", "fare"})
     List<Route> findAllByOrderByRouteNameAsc();

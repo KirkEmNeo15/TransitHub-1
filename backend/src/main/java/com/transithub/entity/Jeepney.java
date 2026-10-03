@@ -5,6 +5,7 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 /** A jeepney service. */
 @Entity
@@ -45,5 +46,10 @@ public class Jeepney extends Transportation {
         double extraKm = Math.max(0, distanceKm - KM_COVERED_BY_BASE_FARE);
         BigDecimal extraCost = fareRule.getPerKmRate().multiply(BigDecimal.valueOf(extraKm));
         return toPesos(fareRule.getBaseFare().add(extraCost));
+    }
+
+    @Override
+    public Map<String, Object> getTypeDetails() {
+        return Map.of("modernized", modernized);
     }
 }

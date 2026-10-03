@@ -6,6 +6,7 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 /** A train service. */
 @Entity
@@ -42,5 +43,10 @@ public class Train extends Transportation {
         checkFareInputs(distanceKm, fareRule);
         BigDecimal byDistance = fareRule.getPerKmRate().multiply(BigDecimal.valueOf(distanceKm));
         return toPesos(fareRule.getBaseFare().max(byDistance));
+    }
+
+    @Override
+    public Map<String, Object> getTypeDetails() {
+        return Map.of("numberOfCars", numberOfCars);
     }
 }

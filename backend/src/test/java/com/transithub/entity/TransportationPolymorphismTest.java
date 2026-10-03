@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -35,6 +36,15 @@ class TransportationPolymorphismTest {
             typeNames.add(transportation.getTransportationType()); // dynamic method dispatch
         }
         assertEquals(List.of("Bus", "Jeepney", "Van", "Shuttle", "Train"), typeNames);
+    }
+
+    @Test
+    void eachSubclassReportsItsOwnDetails() {
+        assertEquals(Map.of("airConditioned", true), new Bus("B", "B-1", null, true).getTypeDetails());
+        assertEquals(Map.of("modernized", false), new Jeepney("J", "J-1", null, false).getTypeDetails());
+        assertEquals(Map.of("seatingCapacity", 15), new Van("V", "V-1", null, 15).getTypeDetails());
+        assertEquals(Map.of("serviceArea", "Lipa City"), new Shuttle("S", "S-1", null, "Lipa City").getTypeDetails());
+        assertEquals(Map.of("numberOfCars", 4), new Train("T", "T-1", null, 4).getTypeDetails());
     }
 
     @Test

@@ -5,6 +5,7 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 /** A bus service. Inherits id, name, code and description from Transportation. */
 @Entity
@@ -47,5 +48,10 @@ public class Bus extends Transportation {
             amount = amount.multiply(AIRCON_MULTIPLIER);
         }
         return toPesos(amount);
+    }
+
+    @Override
+    public Map<String, Object> getTypeDetails() {
+        return Map.of("airConditioned", airConditioned);
     }
 }

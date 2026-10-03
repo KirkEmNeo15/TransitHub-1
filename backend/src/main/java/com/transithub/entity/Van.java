@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Map;
 
 /** A van (UV Express style) service. */
 @Entity
@@ -43,5 +44,10 @@ public class Van extends Transportation {
         checkFareInputs(distanceKm, fareRule);
         BigDecimal wholePesos = distanceBasedFare(distanceKm, fareRule).setScale(0, RoundingMode.UP);
         return toPesos(wholePesos);
+    }
+
+    @Override
+    public Map<String, Object> getTypeDetails() {
+        return Map.of("seatingCapacity", seatingCapacity);
     }
 }

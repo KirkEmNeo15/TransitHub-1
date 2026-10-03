@@ -14,6 +14,7 @@ import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Map;
 
 /**
  * A transportation service (for example "Southern Express Bus").
@@ -95,6 +96,13 @@ public abstract class Transportation {
      * Every type prices differently, so every subclass has its own version.
      */
     public abstract BigDecimal calculateFare(double distanceKm, Fare fareRule);
+
+    /**
+     * The details that only this type has, for example {"airConditioned": true} for a Bus.
+     * Each subclass answers for itself, so callers never need instanceof checks
+     * (which would not even work on Hibernate lazy proxies).
+     */
+    public abstract Map<String, Object> getTypeDetails();
 
     // ------------------------------------------------------------------
     // SHARED HELPERS: written once here and inherited by all subclasses.
