@@ -4,8 +4,6 @@ export const TRANSPORT_COLORS: Record<string, string> = {
   Bus: '#2563eb',
   Jeepney: '#f59e0b',
   Van: '#16a34a',
-  Shuttle: '#9333ea',
-  Train: '#dc2626',
 }
 
 export const DEFAULT_ROUTE_COLOR = '#64748b'

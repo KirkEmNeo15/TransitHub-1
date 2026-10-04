@@ -3,7 +3,6 @@ package com.transithub;
 import com.transithub.entity.Bus;
 import com.transithub.entity.Jeepney;
 import com.transithub.entity.Route;
-import com.transithub.entity.Shuttle;
 import com.transithub.entity.Transportation;
 import com.transithub.entity.Van;
 import jakarta.persistence.EntityManager;
@@ -56,7 +55,6 @@ class EntityMappingTest {
         assertTrue(all.stream().anyMatch(t -> t instanceof Bus), "expected a Bus");
         assertTrue(all.stream().anyMatch(t -> t instanceof Jeepney), "expected a Jeepney");
         assertTrue(all.stream().anyMatch(t -> t instanceof Van), "expected a Van");
-        assertTrue(all.stream().anyMatch(t -> t instanceof Shuttle), "expected a Shuttle");
     }
 
     @Test

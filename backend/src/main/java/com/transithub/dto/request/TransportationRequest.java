@@ -8,11 +8,10 @@ import jakarta.validation.constraints.Size;
 /**
  * Create or update a transportation service.
  * The fields after "description" are only used by the matching type
- * (airConditioned for BUS, modernized for JEEPNEY, seatingCapacity for VAN,
- * serviceArea for SHUTTLE, numberOfCars for TRAIN).
+ * (airConditioned for BUS, modernized for JEEPNEY, seatingCapacity for VAN).
  */
 public record TransportationRequest(
-        @NotNull(message = "Type is required (BUS, JEEPNEY, VAN, SHUTTLE or TRAIN)")
+        @NotNull(message = "Type is required (BUS, JEEPNEY or VAN)")
         TransportType type,
 
         @NotBlank(message = "Name cannot be empty")
@@ -28,10 +27,5 @@ public record TransportationRequest(
 
         Boolean airConditioned,
         Boolean modernized,
-        Integer seatingCapacity,
-
-        @Size(max = 100, message = "Service area must be at most 100 characters")
-        String serviceArea,
-
-        Integer numberOfCars) {
+        Integer seatingCapacity) {
 }

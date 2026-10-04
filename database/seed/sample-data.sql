@@ -20,12 +20,11 @@ INSERT INTO stops (id, name, description, latitude, longitude, is_demo_data) VAL
 (8, 'Tambo Barangay Hall', 'Stop in Barangay Tambo, Lipa City (demo data)', 13.97, 121.145, TRUE);
 
 -- TRANSPORTATIONS (one row per service; transport_type picks the Java subclass)
-INSERT INTO transportations (id, name, code, transport_type, description, has_air_conditioning, is_modernized, seating_capacity, service_area, number_of_cars) VALUES
-(1, 'Lipa-Batangas Jeepney Association (Demo)', 'JEEP-LB', 'JEEPNEY', 'Demo jeepney service', NULL, FALSE, NULL, NULL, NULL),
-(2, 'Southern Express Bus (Demo)', 'BUS-SE', 'BUS', 'Demo air-conditioned bus service', TRUE, NULL, NULL, NULL, NULL),
-(3, 'Lipa Van Express (Demo)', 'VAN-LX', 'VAN', 'Demo van service', NULL, NULL, 15, NULL, NULL),
-(4, 'SM Lipa Shuttle (Demo)', 'SHT-SM', 'SHUTTLE', 'Demo mall shuttle', NULL, NULL, NULL, 'Lipa City', NULL),
-(5, 'Lipa Local Jeepney (Demo)', 'JEEP-LL', 'JEEPNEY', 'Demo local jeepney service', NULL, TRUE, NULL, NULL, NULL);
+INSERT INTO transportations (id, name, code, transport_type, description, has_air_conditioning, is_modernized, seating_capacity) VALUES
+(1, 'Lipa-Batangas Jeepney Association (Demo)', 'JEEP-LB', 'JEEPNEY', 'Demo jeepney service', NULL, FALSE, NULL),
+(2, 'Southern Express Bus (Demo)', 'BUS-SE', 'BUS', 'Demo air-conditioned bus service', TRUE, NULL, NULL),
+(3, 'Lipa Van Express (Demo)', 'VAN-LX', 'VAN', 'Demo van service', NULL, NULL, 15),
+(5, 'Lipa Local Jeepney (Demo)', 'JEEP-LL', 'JEEPNEY', 'Demo local jeepney service', NULL, TRUE, NULL);
 
 -- DRIVERS (fake)
 INSERT INTO drivers (id, full_name, license_number) VALUES
@@ -40,7 +39,7 @@ INSERT INTO vehicles (id, plate_number, capacity, status, transportation_id, dri
 (1, 'DEMO 001', 24, 'ACTIVE', 1, 1),
 (2, 'DEMO 002', 50, 'ACTIVE', 2, 2),
 (3, 'DEMO 003', 15, 'ACTIVE', 3, 3),
-(4, 'DEMO 004', 20, 'ACTIVE', 4, 4),
+(4, 'DEMO 004', 20, 'ACTIVE', 5, 4),
 (5, 'DEMO 005', 22, 'ACTIVE', 5, 5),
 (6, 'DEMO 006', 15, 'MAINTENANCE', 3, NULL);
 
@@ -52,7 +51,7 @@ INSERT INTO routes (id, route_code, route_name, origin, destination, status, est
 (4, 'LT-VAN-01', 'Lipa - Tanauan (Van)', 'Lipa City', 'Tanauan', 'ACTIVE', 35, 18, 3, TRUE),
 (5, 'BT-BUS-01', 'Batangas City - Tanauan (Bus)', 'Batangas City', 'Tanauan', 'ACTIVE', 75, 50, 2, TRUE),
 (6, 'BL-VAN-01', 'Batangas City - Lipa (Van)', 'Batangas City', 'Lipa City', 'ACTIVE', 50, 30, 3, TRUE),
-(7, 'LS-SHUT-01', 'Lipa - SM City (Shuttle)', 'Lipa City', 'SM City Lipa', 'ACTIVE', 15, 4, 4, TRUE),
+(7, 'LS-JEEP-01', 'Lipa - SM City (Jeepney)', 'Lipa City', 'SM City Lipa', 'ACTIVE', 15, 4, 5, TRUE),
 (8, 'LTM-JEEP-01', 'Lipa - Tambo', 'Lipa City', 'Tambo', 'INACTIVE', 20, 8, 5, TRUE);
 
 -- ROUTE_STOPS (stop_order = order along the route)
@@ -118,7 +117,7 @@ INSERT INTO fares (route_id, base_fare, per_km_rate) VALUES
 (4, 30, 1.5),
 (5, 20, 1.0),
 (6, 30, 1.5),
-(7, 15, 1.0),
+(7, 13, 0.85),
 (8, 13, 0.85);
 
 -- SCHEDULES

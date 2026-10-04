@@ -80,7 +80,7 @@ erDiagram
 
 | Decision | Why |
 |---|---|
-| **One `transportations` table for Bus, Jeepney, Van, Shuttle, Train** (single-table inheritance) | The types share most columns. A `transport_type` column tells Java which subclass to build. Type-specific columns (`has_air_conditioning`, `seating_capacity`, ...) are NULL for other types. |
+| **One `transportations` table for Bus, Jeepney and Van** (single-table inheritance) | The types share most columns. A `transport_type` column tells Java which subclass to build. Type-specific columns (`has_air_conditioning`, `is_modernized`, `seating_capacity`) are NULL for other types. |
 | **`route_stops` is its own table** | A stop can be on many routes and a route has many stops (many-to-many). The table also stores `stop_order`, so it cannot be a plain join table. |
 | **`route_points` separate from stops** | Stops are where people board. Points only shape the line on the map. |
 | **Role is a column on `users`** | An admin has no extra data, only different permissions, so no `admins` table or subclass. |

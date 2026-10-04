@@ -18,7 +18,7 @@ import java.util.Map;
 
 /**
  * A transportation service (for example "Southern Express Bus").
- * This is the PARENT class of Bus, Jeepney, Van, Shuttle and Train.
+ * This is the PARENT class of Bus, Jeepney and Van.
  * It is abstract: you cannot create a plain "Transportation", only one of its types.
  *
  * All types are stored in ONE table. The column "transport_type" (the discriminator)

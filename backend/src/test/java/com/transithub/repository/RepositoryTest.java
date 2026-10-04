@@ -96,7 +96,7 @@ class RepositoryTest {
         Stop ibaan = stopRepository.findByNameContainingIgnoreCase("Ibaan").get(0);
         Set<String> codes = routeCodes(routeRepository.findRoutesThroughStop(ibaan.getId()));
         assertTrue(codes.contains("LB-JEEP-01"), "Ibaan Junction is on the Lipa - Batangas jeepney route");
-        assertFalse(codes.contains("LS-SHUT-01"), "the shuttle does not go to Ibaan");
+        assertFalse(codes.contains("LS-JEEP-01"), "the Lipa - SM City jeepney does not go to Ibaan");
     }
 
     @Test

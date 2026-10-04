@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- ---------------------------------------------------------------------
 -- TRANSPORTATIONS (one table for all types: single-table inheritance)
 -- transport_type tells Java which subclass to create:
---   BUS -> Bus, JEEPNEY -> Jeepney, VAN -> Van, SHUTTLE -> Shuttle, TRAIN -> Train
+--   BUS -> Bus, JEEPNEY -> Jeepney, VAN -> Van
 -- The columns after "description" belong to one specific type only
 -- and are NULL for the other types.
 -- ---------------------------------------------------------------------
@@ -35,18 +35,14 @@ CREATE TABLE IF NOT EXISTS transportations (
     name                  VARCHAR(100) NOT NULL CHECK (btrim(name) <> ''),
     code                  VARCHAR(30)  NOT NULL UNIQUE,
     transport_type        VARCHAR(20)  NOT NULL
-                          CHECK (transport_type IN ('BUS', 'JEEPNEY', 'VAN', 'SHUTTLE', 'TRAIN')),
+                          CHECK (transport_type IN ('BUS', 'JEEPNEY', 'VAN')),
     description           VARCHAR(500),
     -- Bus only
     has_air_conditioning  BOOLEAN,
     -- Jeepney only
     is_modernized         BOOLEAN,
     -- Van only
-    seating_capacity      INTEGER CHECK (seating_capacity IS NULL OR seating_capacity > 0),
-    -- Shuttle only
-    service_area          VARCHAR(100),
-    -- Train only
-    number_of_cars        INTEGER CHECK (number_of_cars IS NULL OR number_of_cars > 0)
+    seating_capacity      INTEGER CHECK (seating_capacity IS NULL OR seating_capacity > 0)
 );
 
 -- ---------------------------------------------------------------------

@@ -4,8 +4,6 @@ import com.transithub.dto.request.TransportationRequest;
 import com.transithub.dto.response.TransportationResponse;
 import com.transithub.entity.Bus;
 import com.transithub.entity.Jeepney;
-import com.transithub.entity.Shuttle;
-import com.transithub.entity.Train;
 import com.transithub.entity.Transportation;
 import com.transithub.entity.Van;
 import com.transithub.exception.DuplicateResourceException;
@@ -69,10 +67,6 @@ public class TransportationService {
                     Boolean.TRUE.equals(request.modernized()));
             case VAN -> new Van(request.name(), code, request.description(),
                     required(request.seatingCapacity(), "Seating capacity"));
-            case SHUTTLE -> new Shuttle(request.name(), code, request.description(),
-                    requiredText(request.serviceArea(), "Service area"));
-            case TRAIN -> new Train(request.name(), code, request.description(),
-                    required(request.numberOfCars(), "Number of cars"));
         };
         return transportationMapper.toResponse(transportationRepository.save(transportation));
     }
@@ -98,8 +92,6 @@ public class TransportationService {
             case BUS -> ((Bus) real).setAirConditioned(Boolean.TRUE.equals(request.airConditioned()));
             case JEEPNEY -> ((Jeepney) real).setModernized(Boolean.TRUE.equals(request.modernized()));
             case VAN -> ((Van) real).setSeatingCapacity(required(request.seatingCapacity(), "Seating capacity"));
-            case SHUTTLE -> ((Shuttle) real).setServiceArea(requiredText(request.serviceArea(), "Service area"));
-            case TRAIN -> ((Train) real).setNumberOfCars(required(request.numberOfCars(), "Number of cars"));
         }
         return transportationMapper.toResponse(transportationRepository.save(transportation));
     }
@@ -123,13 +115,6 @@ public class TransportationService {
 
     private static int required(Integer value, String fieldName) {
         if (value == null) {
-            throw new InvalidRequestException(fieldName + " is required for this transportation type");
-        }
-        return value;
-    }
-
-    private static String requiredText(String value, String fieldName) {
-        if (value == null || value.isBlank()) {
             throw new InvalidRequestException(fieldName + " is required for this transportation type");
         }
         return value;

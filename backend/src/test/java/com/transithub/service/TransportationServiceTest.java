@@ -26,7 +26,7 @@ class TransportationServiceTest {
     private TransportationService transportationService;
 
     private TransportationRequest van(String code, Integer seats) {
-        return new TransportationRequest(TransportType.VAN, "Service Test Van", code, null, null, null, seats, null, null);
+        return new TransportationRequest(TransportType.VAN, "Service Test Van", code, null, null, null, seats);
     }
 
     @Test
@@ -35,10 +35,15 @@ class TransportationServiceTest {
         assertEquals("Van", createdVan.type());
         assertEquals(Map.of("seatingCapacity", 14), createdVan.details());
 
-        TransportationResponse train = transportationService.create(new TransportationRequest(
-                TransportType.TRAIN, "Service Test Train", "TRN-SVC-1", null, null, null, null, null, 6));
-        assertEquals("Train", train.type());
-        assertEquals(Map.of("numberOfCars", 6), train.details());
+        TransportationResponse bus = transportationService.create(new TransportationRequest(
+                TransportType.BUS, "Service Test Bus", "BUS-SVC-1", null, true, null, null));
+        assertEquals("Bus", bus.type());
+        assertEquals(Map.of("airConditioned", true), bus.details());
+
+        TransportationResponse jeepney = transportationService.create(new TransportationRequest(
+                TransportType.JEEPNEY, "Service Test Jeepney", "JEEP-SVC-1", null, null, true, null));
+        assertEquals("Jeepney", jeepney.type());
+        assertEquals(Map.of("modernized", true), jeepney.details());
     }
 
     @Test
@@ -60,7 +65,7 @@ class TransportationServiceTest {
         assertEquals(Map.of("seatingCapacity", 18), updated.details());
 
         TransportationRequest changeType = new TransportationRequest(
-                TransportType.BUS, "Service Test Van", "VAN-SVC-4", null, true, null, null, null, null);
+                TransportType.BUS, "Service Test Van", "VAN-SVC-4", null, true, null, null);
         assertThrows(InvalidRequestException.class, () -> transportationService.update(created.id(), changeType));
     }
 

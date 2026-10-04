@@ -24,8 +24,6 @@ class TransportationPolymorphismTest {
         services.add(new Bus("Test Bus", "BUS-T", null, false));
         services.add(new Jeepney("Test Jeepney", "JEEP-T", null, false));
         services.add(new Van("Test Van", "VAN-T", null, 15));
-        services.add(new Shuttle("Test Shuttle", "SHT-T", null, "Lipa City"));
-        services.add(new Train("Test Train", "TRN-T", null, 4));
         return services;
     }
 
@@ -35,7 +33,7 @@ class TransportationPolymorphismTest {
         for (Transportation transportation : allTypes()) {
             typeNames.add(transportation.getTransportationType()); // dynamic method dispatch
         }
-        assertEquals(List.of("Bus", "Jeepney", "Van", "Shuttle", "Train"), typeNames);
+        assertEquals(List.of("Bus", "Jeepney", "Van"), typeNames);
     }
 
     @Test
@@ -43,20 +41,16 @@ class TransportationPolymorphismTest {
         assertEquals(Map.of("airConditioned", true), new Bus("B", "B-1", null, true).getTypeDetails());
         assertEquals(Map.of("modernized", false), new Jeepney("J", "J-1", null, false).getTypeDetails());
         assertEquals(Map.of("seatingCapacity", 15), new Van("V", "V-1", null, 15).getTypeDetails());
-        assertEquals(Map.of("serviceArea", "Lipa City"), new Shuttle("S", "S-1", null, "Lipa City").getTypeDetails());
-        assertEquals(Map.of("numberOfCars", 4), new Train("T", "T-1", null, 4).getTypeDetails());
     }
 
     @Test
     void sameCallGivesDifferentFaresForEachType() {
         double distanceKm = 30;
 
-        // Jeepney: 13.00 + 0.85 x (30 - 4 free km) = 35.10
         // Bus (no aircon): 13.00 + 0.85 x 30 = 38.50
+        // Jeepney: 13.00 + 0.85 x (30 - 4 free km) = 35.10
         // Van: 38.50 rounded UP to a whole peso = 39.00
-        // Shuttle: flat base fare = 13.00
-        // Train: max(13.00, 0.85 x 30 = 25.50) = 25.50
-        List<String> expectedFares = List.of("38.50", "35.10", "39.00", "13.00", "25.50");
+        List<String> expectedFares = List.of("38.50", "35.10", "39.00");
 
         List<Transportation> services = allTypes();
         for (int i = 0; i < services.size(); i++) {
@@ -76,12 +70,7 @@ class TransportationPolymorphismTest {
     void jeepneyBaseFareCoversTheFirstFourKilometers() {
         Jeepney jeepney = new Jeepney("Test Jeepney", "JEEP-T2", null, false);
         assertFare("13.00", jeepney.calculateFare(3, fareRule), "Jeepney 3 km");
-    }
-
-    @Test
-    void trainNeverChargesLessThanTheMinimumFare() {
-        Train train = new Train("Test Train", "TRN-T2", null, 3);
-        assertFare("13.00", train.calculateFare(5, fareRule), "Train 5 km");
+        assertFare("13.00", jeepney.calculateFare(4, fareRule), "Jeepney 4 km");
     }
 
     @Test
