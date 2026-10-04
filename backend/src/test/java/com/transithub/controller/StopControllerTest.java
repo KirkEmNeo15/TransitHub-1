@@ -1,5 +1,6 @@
 package com.transithub.controller;
 
+import com.transithub.entity.Stop;
 import com.transithub.repository.StopRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,8 +49,12 @@ class StopControllerTest {
 
     @Test
     void nearbyReturnsTheClosestStopFirst() throws Exception {
+        // standing exactly at the stop (its coordinates are read from the database)
+        Stop market = stopRepository.findByNameContainingIgnoreCase("Lipa Public Market").get(0);
         mockMvc.perform(get("/api/stops/nearby")
-                        .param("lat", "13.9411").param("lng", "121.1631").param("radiusKm", "5"))
+                        .param("lat", String.valueOf(market.getLatitude()))
+                        .param("lng", String.valueOf(market.getLongitude()))
+                        .param("radiusKm", "5"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].stop.name").value("Lipa Public Market"))
                 .andExpect(jsonPath("$[0].distanceKm").value(0.0));

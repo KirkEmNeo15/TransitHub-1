@@ -27,8 +27,10 @@ class StopServiceTest {
 
     @Test
     void nearbyStopsAreWithinTheRadiusAndSortedByDistance() {
-        // Standing at Lipa Public Market, looking 5 km around
-        List<NearbyStopResponse> nearby = stopService.findNearbyStops(13.9411, 121.1631, 5.0);
+        // Standing exactly at Lipa Public Market (read from the database, so the test still works
+        // if the stop was moved onto the road by the road-snapping tool), looking 5 km around
+        StopResponse market = stopService.getStops("Lipa Public Market").get(0);
+        List<NearbyStopResponse> nearby = stopService.findNearbyStops(market.latitude(), market.longitude(), 5.0);
 
         assertEquals("Lipa Public Market", nearby.get(0).stop().name());
         assertEquals(0.0, nearby.get(0).distanceKm());
