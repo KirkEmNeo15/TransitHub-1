@@ -7,13 +7,15 @@ import MapFilters from '../components/MapFilters'
 import type { MapFilterState } from '../components/MapFilters'
 import MapView from '../components/MapView'
 import type { FlyTarget } from '../components/MapView'
+import RouteSearch from '../components/RouteSearch'
 import RouteSummary from '../components/RouteSummary'
 import { useApiData } from '../hooks/useApiData'
-import { getRoutes } from '../services/routeService'
+import { getRoutes, searchRoutes } from '../services/routeService'
 import { getNearbyStops, getStops } from '../services/stopService'
 import type { Route } from '../types/Route'
 import type { NearbyStop, Stop } from '../types/Stop'
 import type { PickMode, TripPoint } from '../types/Trip'
+import { formatDuration, formatPeso } from '../utils/format'
 import { distanceKm, formatCoordinates } from '../utils/geo'
 import { colorForType } from '../utils/transportColors'
 
@@ -39,7 +41,7 @@ function routeMatchesQuery(route: Route, query: string): boolean {
 }
 
 export default function MapPage() {
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const routesData = useApiData(loadAllRoutes)
   const stopsData = useApiData(loadAllStops)
 
@@ -56,6 +58,21 @@ export default function MapPage() {
   const [destination, setDestination] = useState<TripPoint | null>(null)
   const [flyTarget, setFlyTarget] = useState<FlyTarget | null>(null)
   const [locationError, setLocationError] = useState('')
+
+  // ----- route search (the address looks like /map?origin=Lipa&destination=Batangas) -----
+  const searchOrigin = searchParams.get('origin') ?? ''
+  const searchDestination = searchParams.get('destination') ?? ''
+  const searchActive = searchOrigin !== '' && searchDestination !== ''
+  const loadSearch = useCallback(
+    () => (searchActive ? searchRoutes(searchOrigin, searchDestination) : Promise.resolve<Route[]>([])),
+    [searchActive, searchOrigin, searchDestination],
+  )
+  const search = useApiData(loadSearch)
+  const searchResults = searchActive && search.state.status === 'success' ? search.state.data : NO_ROUTES
+  const highlightedIds = useMemo(
+    () => (searchActive && search.state.status === 'success' ? new Set(search.state.data.map((route) => route.id)) : null),
+    [searchActive, search.state],
+  )
 
   const allRoutes = routesData.state.status === 'success' ? routesData.state.data : NO_ROUTES
   const allStops = stopsData.state.status === 'success' ? stopsData.state.data : NO_STOPS
@@ -77,15 +94,18 @@ export default function MapPage() {
   }, [visibleRoutes, allStops])
 
   const selectedRoute = visibleRoutes.find((route) => route.id === selectedRouteId) ?? null
+  const visibleIds = new Set(visibleRoutes.map((route) => route.id))
 
-  // the map zooms to the selected route, or to all routes when nothing is selected
+  // the map zooms to the selected route, else to the search results, else to all routes
   const focusBounds = useMemo<LatLngTuple[] | null>(() => {
-    const source = selectedRoute ? [selectedRoute] : allRoutes
+    let source: Route[] = allRoutes
+    if (selectedRoute) source = [selectedRoute]
+    else if (searchResults.length > 0) source = searchResults
     const points = source.flatMap((route) =>
       route.path.map((point): LatLngTuple => [point.latitude, point.longitude]),
     )
     return points.length > 0 ? points : null
-  }, [selectedRoute, allRoutes])
+  }, [selectedRoute, searchResults, allRoutes])
 
   // ----- stops near the origin -----
   const loadNearby = useCallback(
@@ -96,6 +116,26 @@ export default function MapPage() {
     [origin],
   )
   const nearby = useApiData(loadNearby)
+
+  const loadNearbyDestination = useCallback(
+    () =>
+      destination
+        ? getNearbyStops(destination.latitude, destination.longitude, 2)
+        : Promise.resolve<NearbyStop[]>([]),
+    [destination],
+  )
+  const nearbyDestination = useApiData(loadNearbyDestination)
+
+  // The closest stop to A and to B. They are used to search for routes between the two points.
+  const originStop = nearby.state.status === 'success' ? (nearby.state.data[0]?.stop ?? null) : null
+  const destinationStop =
+    nearbyDestination.state.status === 'success' ? (nearbyDestination.state.data[0]?.stop ?? null) : null
+
+  const findRoutesBetweenPoints = () => {
+    if (originStop && destinationStop) {
+      setSearchParams({ origin: originStop.name, destination: destinationStop.name })
+    }
+  }
 
   // ----- choosing the origin and the destination -----
   const setTripPoint = (mode: PickMode, point: TripPoint) => {
@@ -163,16 +203,25 @@ export default function MapPage() {
         </p>
       </div>
 
+      <RouteSearch
+        key={`${searchOrigin}|${searchDestination}`}
+        initialOrigin={searchOrigin}
+        initialDestination={searchDestination}
+        suggestions={allStops.map((stop) => stop.name)}
+        onSearch={(from, to) => setSearchParams({ origin: from, destination: to })}
+        onClear={searchActive ? () => setSearchParams({}) : undefined}
+      />
+
       <div>
         <label htmlFor="map-search" className="sr-only">
-          Search transportation or route
+          Filter the routes on the map
         </label>
         <input
           id="map-search"
           type="search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search transportation or route (name, code, origin, destination)"
+          placeholder="Filter the routes on the map (name, code, origin, destination, operator)"
           className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 outline-none focus:ring-2 focus:ring-primary/40"
         />
       </div>
@@ -180,6 +229,53 @@ export default function MapPage() {
       <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
         {/* ---------- side panel ---------- */}
         <aside className="space-y-4">
+          {searchActive && (
+            <div className="rounded-xl border border-primary/40 bg-blue-50 p-4 shadow-sm">
+              <h2 className="text-sm font-semibold">
+                Routes from {searchOrigin} to {searchDestination}
+              </h2>
+              {search.state.status === 'loading' && <p className="mt-2 text-sm text-slate-600">Searching...</p>}
+              {search.state.status === 'error' && (
+                <p role="alert" className="mt-2 text-sm text-danger">
+                  {search.state.message}
+                </p>
+              )}
+              {search.state.status === 'success' && search.state.data.length === 0 && (
+                <p className="mt-2 text-sm text-slate-700">
+                  No direct routes found. Try other stop names. Routes that need a transfer are not searched yet.
+                </p>
+              )}
+              {search.state.status === 'success' && search.state.data.length > 0 && (
+                <>
+                  <p className="mt-1 text-xs text-slate-600">The other routes are dimmed on the map.</p>
+                  <ul className="mt-2 space-y-1">
+                    {search.state.data.map((route) => (
+                      <li key={route.id}>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedRouteId(route.id)}
+                          className={`w-full rounded px-2 py-1.5 text-left text-sm hover:bg-white ${
+                            route.id === selectedRoute?.id ? 'bg-white font-semibold' : ''
+                          }`}
+                        >
+                          <span
+                            className="mr-2 inline-block h-3 w-3 rounded-full align-middle"
+                            style={{ backgroundColor: colorForType(route.transportation.type) }}
+                          />
+                          {route.routeName}
+                          <span className="block pl-5 text-xs font-normal text-slate-600">
+                            {formatPeso(route.estimatedFare)} &middot; {formatDuration(route.estimatedMinutes)}
+                            {!visibleIds.has(route.id) && ' \u00b7 hidden by the filters'}
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </div>
+          )}
+
           <MapFilters filters={filters} onChange={setFilters} />
 
           <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -232,6 +328,30 @@ export default function MapPage() {
                 <div className="text-slate-600">Straight-line distance: {straightLine.toFixed(1)} km</div>
               )}
             </dl>
+            {origin && destination && (
+              <div className="mt-3 rounded-lg bg-slate-50 p-3 text-sm">
+                {originStop && destinationStop ? (
+                  <>
+                    <p className="text-slate-600">
+                      Nearest stops: <strong>{originStop.name}</strong> and <strong>{destinationStop.name}</strong>
+                    </p>
+                    <button
+                      type="button"
+                      onClick={findRoutesBetweenPoints}
+                      className="mt-2 rounded-lg bg-primary px-3 py-1.5 font-semibold text-white hover:bg-blue-700"
+                    >
+                      Find routes between A and B
+                    </button>
+                  </>
+                ) : nearby.state.status === 'loading' || nearbyDestination.state.status === 'loading' ? (
+                  <p className="text-slate-500">Looking for the nearest stops...</p>
+                ) : (
+                  <p className="text-slate-600">
+                    There is no stop within 2 km of {originStop ? 'B' : 'A'}, so routes cannot be searched from these points.
+                  </p>
+                )}
+              </div>
+            )}
             {(origin || destination) && (
               <button type="button" onClick={clearTrip} className="mt-2 text-sm font-medium text-primary hover:underline">
                 Clear origin and destination
@@ -304,6 +424,7 @@ export default function MapPage() {
               allRoutes={allRoutes}
               stops={visibleStops}
               selectedRoute={selectedRoute}
+              highlightedRouteIds={highlightedIds}
               onSelectRoute={setSelectedRouteId}
               focusBounds={focusBounds}
               flyTarget={flyTarget}

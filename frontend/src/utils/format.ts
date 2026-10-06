@@ -40,6 +40,14 @@ export function operatingHours(schedules: Schedule[]): string {
   return `${formatTime(schedules[0].firstTrip)} - ${formatTime(schedules[0].lastTrip)}`
 }
 
+/** "5:00 AM - 10:00 PM, every 15 min, MON-SUN" */
+export function describeSchedule(schedule: Schedule): string {
+  return (
+    `${formatTime(schedule.firstTrip)} - ${formatTime(schedule.lastTrip)}, ` +
+    `every ${schedule.frequencyMinutes} min, ${schedule.daysOperating}`
+  )
+}
+
 /** Turns the type-specific details of a transportation into readable lines. */
 export function describeDetails(transportation: Transportation): string[] {
   const details = transportation.details

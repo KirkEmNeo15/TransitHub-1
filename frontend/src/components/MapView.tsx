@@ -30,6 +30,8 @@ interface MapViewProps {
   allRoutes: Route[] // every route, used by the stop popups
   stops: Stop[] // the stops to draw
   selectedRoute: Route | null
+  // routes found by a search (the others are dimmed); null when no search is active
+  highlightedRouteIds: Set<number> | null
   onSelectRoute: (routeId: number) => void
   focusBounds: LatLngTuple[] | null // the map zooms to show these points
   flyTarget: FlyTarget | null // the map moves to this point
@@ -82,6 +84,7 @@ export default function MapView({
   allRoutes,
   stops,
   selectedRoute,
+  highlightedRouteIds,
   onSelectRoute,
   focusBounds,
   flyTarget,
@@ -91,10 +94,10 @@ export default function MapView({
   onPick,
   onStopAsTripPoint,
 }: MapViewProps) {
-  // The selected route is drawn last, so it is on top of the others.
-  const drawOrder = [...routes].sort(
-    (a, b) => Number(a.id === selectedRoute?.id) - Number(b.id === selectedRoute?.id),
-  )
+  // Drawing order: dimmed routes first, then search results, and the selected route last (on top).
+  const importance = (route: Route) =>
+    route.id === selectedRoute?.id ? 2 : highlightedRouteIds === null || highlightedRouteIds.has(route.id) ? 1 : 0
+  const drawOrder = [...routes].sort((a, b) => importance(a) - importance(b))
 
   return (
     <MapContainer center={DEFAULT_CENTER} zoom={DEFAULT_ZOOM} scrollWheelZoom className="h-full w-full">
@@ -111,14 +114,15 @@ export default function MapView({
         .filter((route) => route.path.length >= 2)
         .map((route) => {
           const selected = route.id === selectedRoute?.id
+          const dimmed = !selected && highlightedRouteIds !== null && !highlightedRouteIds.has(route.id)
           return (
             <Polyline
               key={route.id}
               positions={route.path.map((point): LatLngTuple => [point.latitude, point.longitude])}
               pathOptions={{
                 color: colorForType(route.transportation.type),
-                weight: selected ? 8 : 5,
-                opacity: selected ? 1 : 0.75,
+                weight: selected ? 8 : dimmed ? 3 : 5,
+                opacity: selected ? 1 : dimmed ? 0.2 : 0.8,
                 // inactive and suspended routes are dashed
                 dashArray: route.status === 'ACTIVE' ? undefined : '8 10',
               }}
