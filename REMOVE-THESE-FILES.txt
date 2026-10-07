@@ -1,0 +1,6 @@
+Phase 19 cleanup: delete these files from your project (a zip cannot delete files).
+Git Bash, from the project root:
+
+git rm frontend/src/pages/SetupCheck.tsx frontend/src/types/Api.ts frontend/src/components/PagePlaceholder.tsx
+
+If a file is already gone, git prints an error for it: that is fine.
