@@ -12,7 +12,6 @@ import Profile from './pages/Profile'
 import Register from './pages/Register'
 import RouteDetails from './pages/RouteDetails'
 import RoutesPage from './pages/Routes'
-import SetupCheck from './pages/SetupCheck'
 import AlertsManagement from './pages/admin/AlertsManagement'
 import Dashboard from './pages/admin/Dashboard'
 import RoutesManagement from './pages/admin/RoutesManagement'
@@ -33,7 +32,6 @@ export default function App() {
         <Route path="alerts" element={<Alerts />} />
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
-        <Route path="setup-check" element={<SetupCheck />} />
 
         {/* pages that need a login */}
         <Route element={<ProtectedRoute />}>

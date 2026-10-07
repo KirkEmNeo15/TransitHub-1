@@ -55,7 +55,6 @@ The backend must be running on http://localhost:8080. To use another address, co
 | `/login`, `/register` | Log in / sign up | everyone |
 | `/favorites`, `/profile` | My favorites, my profile | logged-in users |
 | `/admin` and `/admin/routes`, `/stops`, `/transportation`, `/alerts`, `/users` | Admin area | ADMIN only |
-| `/setup-check` | Developer diagnostics (Tailwind, router, backend, map) | everyone |
 
 The frontend hides pages the user may not open, but that is only for convenience.
 The backend checks the login and the role again on every API call.
@@ -67,7 +66,7 @@ The backend checks the login and the role again on every API call.
 4. After a page refresh, `AuthProvider` asks `GET /api/auth/me` to restore the user.
 5. If the backend answers 401 (expired token), the token is removed and the user is logged out.
 
-## How the frontend gets data (Phase 13)
+## How the frontend gets data
 ```
 Page  ->  useApiData(fetcher)  ->  service function  ->  api.ts (Axios)  ->  backend
 ```
@@ -85,37 +84,7 @@ and an empty-state message when there is nothing to show.
 Note: "Popular Routes" on the home page is simply the first three active routes by name. The system
 has no usage statistics yet, so a real popularity ranking is a future improvement.
 
-## The map page (Phase 14)
-`/map` shows every route stored in the database as a line, and every stop as a small circle.
-
-| You do this | What happens |
-|---|---|
-| Click a route line (or a route in the left list) | The line gets thicker, the map zooms to it, its stops are numbered, and a card shows name, type, code, start, destination, stops, fare, operating hours, travel time and status |
-| Click a stop | A popup shows its name, location and the routes passing through it |
-| Tick or untick Bus / Jeepney / Van, Active, Inactive | Routes are shown or hidden. Inactive and suspended routes are dashed |
-| Type in the search bar | Only routes matching the name, code, place, operator or a stop name stay on the map |
-| "Set origin (A)" / "Set destination (B)", then click the map | Pins A and B appear. The nearest stop to each is found, and "Find routes between these stops" lists the direct routes, fastest first |
-
-Notes
-- Route lines are drawn from the points stored in the database (`route_points`). The demo routes are straight
-  lines between stops, because real road geometry is not stored. This is **not** live GPS tracking.
-- Map tiles come from OpenStreetMap. Their usage policy allows light use such as a school project.
-- The pins use plain HTML icons, so Leaflet's default marker image files are not needed.
-- `/map?route=3` opens the map with route 3 selected (the "View on map" button on a route page uses this).
-
-## Files
-| File | Job |
-|---|---|
-| `pages/Map.tsx` | Holds the state (filters, selected route, chosen points) and arranges the page |
-| `components/MapView.tsx` | The Leaflet map: tiles, lines, stops, pins, zoom-to-route |
-| `components/StopMarker.tsx` | One stop and its popup |
-| `components/MapFilters.tsx` | The filter checkboxes |
-| `components/RouteInfoCard.tsx` | The selected-route card |
-| `components/MapPickPanel.tsx` | Choosing A and B, nearest stops, route results |
-| `hooks/useNearestStop.ts` | Finds the closest stop to a clicked point (uses `/api/stops/nearby`) |
-| `utils/mapHelpers.ts` | Leaflet helpers: positions, pin icons, text matching |
-
-## The map (Phase 14)
+## The map
 Page `/map` (`pages/Map.tsx`) loads every route and stop once, then filters them in the browser.
 
 | Piece | Job |
@@ -136,4 +105,60 @@ How it behaves:
 - When an origin is set, the stops within 2 km are listed, using `GET /api/stops/nearby`.
 - `/map?route=3` opens the map with route 3 selected (the "View on map" button on a route page).
 - The straight-line distance between A and B is only an approximation, not a travel distance.
-  Finding transportation between A and B comes with the route search (Phase 15).
+  Finding transportation between A and B is done by the route search below.
+
+## Route search
+The search asks the backend (`GET /api/routes/search?origin=...&destination=...`). It returns **active**
+routes that pass a stop matching the origin and, later on the same route, a stop matching the destination.
+So Lipa to Batangas finds the Lipa-to-Batangas routes but not the Batangas-to-Lipa ones.
+The match is "the stop name contains the text", ignoring upper and lower case. Routes that need a
+transfer are not searched yet.
+
+| Piece | Job |
+|---|---|
+| `components/RouteSearch.tsx` | The two inputs, a swap button, stop-name suggestions, checks that both places are filled in and different |
+| `components/SearchResults.tsx` | Calls the search, shows the results, and lets the user sort by fastest or cheapest |
+| `components/SearchResultCard.tsx` | One result: type, route name, origin and destination, where to get on and off, stops, fare, travel time, operating schedule, status |
+| `utils/tripSection.ts` | Finds the part of a route the passenger rides, and how long it takes |
+
+Where it appears:
+- **Routes page** (`/routes?origin=Lipa&destination=Batangas`): the search form on top. The address holds the
+  search, so it can be shared and the Back button works.
+- **Map page** (`/map?origin=Lipa&destination=Batangas`): the same form. The matching routes stay bright and
+  all other routes are dimmed, and the map zooms to them. The side panel lists the results.
+- **Pick A and B on the map**, then "Find routes between A and B". The nearest stop to each point is used for the search.
+
+Notes:
+- The fare shown is for the whole route. The backend does not price a part of a route.
+- "Estimated time (whole route)" is the full trip. The blue line "Get on at ... get off at ..." shows the time between the two stops.
+
+## Admin dashboard
+
+All pages under `/admin` need an ADMIN login (`ProtectedRoute requireAdmin`, and the backend checks the role again).
+
+| Page | What the admin can do |
+|---|---|
+| `pages/admin/Dashboard.tsx` | See totals (routes, stops, vehicles, users, alerts, open reports) and two bar charts |
+| `pages/admin/RoutesManagement.tsx` | Search, add, edit, delete routes; change status (active / inactive / suspended) |
+| `pages/admin/StopsManagement.tsx` | Search, add, edit, delete stops |
+| `pages/admin/TransportationManagement.tsx` | Add, edit, delete buses, jeepneys and vans |
+| `pages/admin/AlertsManagement.tsx` | Add, edit, delete alerts; hide an alert by making it inactive |
+| `pages/admin/UsersManagement.tsx` | Change a user's role, disable or enable an account, and update the status of commuter reports |
+
+Shared pieces in `components/admin/`: `DataTable`, `Pagination`, `Modal`, `ConfirmDialog`, `Notice`,
+`AdminPageHeader`, `FormControls`, `BarChart`, and the forms `RouteForm`, `StopForm`,
+`TransportationForm`, `AlertForm`.
+
+Things to know:
+- Routes, stops and users are paged by the server (`/api/admin/...?search=&page=&size=`). Transportation and alerts are
+  short lists, so they are paged in the browser with `usePagination`.
+- Every form checks the input first (`utils/routeForm.ts` for routes), then shows the backend's field errors under the
+  matching input if the server still refuses (for example a duplicate route code).
+- Deleting something that is still used (a stop on a route, a transportation on a route) is refused by the backend with
+  status 409. The message is shown inside the confirm dialog.
+- **Route line:** when you edit a route without changing its stops, the stored line (which may follow real roads) is kept.
+  If you change the stops, the line is drawn straight through the new stops. Run `database/tools/snap-routes-to-roads.mjs`
+  again to make it follow the roads.
+- You cannot change your own role or disable your own account.
+- Vehicles, drivers, schedules and fares are edited inside the route form or come from the sample data. They have no
+  separate admin screens yet.

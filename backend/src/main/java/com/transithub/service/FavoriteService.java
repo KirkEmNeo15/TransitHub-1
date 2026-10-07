@@ -17,7 +17,7 @@ import java.util.List;
 
 /**
  * A user's saved routes. The user id is passed in by the controller
- * (taken from the logged-in user in Phase 10).
+ * (taken from the logged-in user's token).
  */
 @Service
 public class FavoriteService {

@@ -11,7 +11,7 @@ import TypeBadge from './TypeBadge'
 
 /**
  * Everything about one route: summary, stops in order and schedules.
- * Used on the route page now, and in the map side card in Phase 14.
+ * Used on the route page and in the map side card.
  */
 export default function RouteDetails({ route }: { route: Route }) {
   const typeDetails = describeDetails(route.transportation)

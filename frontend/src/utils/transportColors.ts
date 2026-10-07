@@ -1,4 +1,4 @@
-// One color per transportation type, used for the route lines on the map (Phase 14).
+// One color per transportation type, used for the route lines on the map.
 // The keys are the values the backend sends in "transportation.type".
 export const TRANSPORT_COLORS: Record<string, string> = {
   Bus: '#2563eb',

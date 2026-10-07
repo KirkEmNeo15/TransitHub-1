@@ -10,7 +10,6 @@ import java.util.List;
  * An interface says WHAT a search service must do, not HOW. Today we plan one
  * implementation (direct routes only). Later we could add another one that
  * finds routes with transfers, without changing the code that uses this interface.
- * The implementation is written in Phase 7, when the repositories exist.
  */
 public interface RouteSearchService {
 

@@ -1,6 +1,5 @@
 -- =====================================================================
 -- TransitHub database schema (PostgreSQL)
--- Phase 2: Database design
 --
 -- This script is safe to run more than once (IF NOT EXISTS).
 -- Money uses NUMERIC (exact decimals), never floating point.

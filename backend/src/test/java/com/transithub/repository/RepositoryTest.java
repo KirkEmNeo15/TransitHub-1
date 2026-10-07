@@ -129,7 +129,7 @@ class RepositoryTest {
 
     @Test
     void savingARouteAlsoSavesItsStopsPathFareAndSchedule() {
-        Van van = transportationRepository.save(new Van("Phase 6 Test Van", "VAN-P6-TEST", null, 12));
+        Van van = transportationRepository.save(new Van("Test Van", "VAN-TEST", null, 12));
         Stop first = stopRepository.save(new Stop("P6 Test Stop A", null, 13.94, 121.16));
         Stop second = stopRepository.save(new Stop("P6 Test Stop B", null, 13.95, 121.17));
 

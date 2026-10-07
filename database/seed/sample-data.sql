@@ -5,7 +5,7 @@
 -- openstreetmap.org if you want more accurate map lines.
 -- Run AFTER schema.sql, and only once (re-running causes duplicate-key errors).
 -- User accounts are NOT here: passwords must be BCrypt-hashed, so the Java
--- backend creates the demo accounts (Phase 10).
+-- backend creates the demo accounts at startup (see .env.example).
 -- =====================================================================
 
 -- STOPS

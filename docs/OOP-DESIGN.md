@@ -84,8 +84,8 @@ public abstract BigDecimal calculateFare(double distanceKm, Fare fareRule);
 List<Route> findDirectRoutes(String origin, String destination);
 ```
 
-The controller and other services depend on the interface, not on one implementation. The first
-implementation (direct routes only) is written in Phase 7. A later one that finds routes with
+The controller and other services depend on the interface, not on one implementation. The current
+implementation finds direct routes only. A later one that finds routes with
 transfers could be added without changing the code that uses the interface.
 
 ## 5. Encapsulation examples
@@ -130,7 +130,7 @@ Proof: `TransportationPolymorphismTest`.
 ## 7. Why each principle is appropriate here
 
 - **Abstraction:** the app should say "give me the fare" without caring about the vehicle type.
-- **Inheritance:** all five types really share identity data and helpers; copying them five
+- **Inheritance:** all three types really share identity data and helpers; copying them three
   times would be wasteful and error-prone.
 - **Polymorphism:** fares are genuinely different per type. Without it we would need a growing
   `if (type == BUS) ... else if (type == JEEPNEY) ...` chain in every place that needs a fare.
@@ -147,5 +147,5 @@ Shuttle and train were considered and removed from the scope. The design makes a
 
 ## 9. Database mapping note
 
-All five types are stored in one table, `transportations`. The `transport_type` column
+All three types are stored in one table, `transportations`. The `transport_type` column
 (the discriminator) tells Hibernate which subclass to create (`SINGLE_TABLE` inheritance).

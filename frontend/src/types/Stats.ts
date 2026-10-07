@@ -1,4 +1,4 @@
-// Matches PublicStatsResponse in docs/API.md. (The admin numbers are added in Phase 16.)
+// Matches PublicStatsResponse in docs/API.md.
 export interface PublicStats {
   activeRoutes: number
   stops: number

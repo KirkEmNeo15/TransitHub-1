@@ -99,4 +99,4 @@ erDiagram
 - `database/schema.sql` creates the tables (safe to re-run).
 - `database/seed/sample-data.sql` inserts demo data (run once).
 - Docker runs both automatically the first time the database starts empty.
-- In Phase 3 Hibernate is set to `validate`: it only checks that the Java entities match these tables and never changes them.
+- Hibernate is set to `validate`: it only checks that the Java entities match these tables and never changes them.
