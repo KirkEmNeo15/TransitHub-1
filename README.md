@@ -224,7 +224,10 @@ a mobile app, public transportation API integration, and separate admin screens 
 ## Team Members and Roles
 | Name | Role |
 |---|---|
-| _TODO_ | _TODO_ |
+| Rodrigo B. Alderite Jr. | Backend Developer |
+| Red Zildjian C. Sepillo | Frontend Developer |
+| Kirk Em Neo M. Legasi | Frontend Developer and Data Gathering |
+| Karl Vincent C. Samonte | Data Gathering |
 
 ## GitHub Workflow
 Branches:
