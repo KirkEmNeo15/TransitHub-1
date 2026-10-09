@@ -25,10 +25,10 @@ It is important to solve this problem because students and other commuters may h
 
 
 ## Project Objectives
-- General Objective
+ **General Objective**
 To develop a Java-based application that will allow users to view transportation routes and stops using an interactive map. 	
 
--Specific Objectives
+**Specific Objectives**
 The project aims to:
 
 - To allow users to search and view available transportation routes.
