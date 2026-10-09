@@ -226,7 +226,7 @@ a mobile app, public transportation API integration, and separate admin screens 
 |---|---|
 | Rodrigo B. Alderite Jr. | Backend Developer |
 | Red Zildjian C. Sepillo | Frontend Developer |
-| Kirk Em Neo M. Legasi | Frontend Developer and Data Gathering |
+| Kirk Em Neo M. Legaspi | Frontend Developer and Data Gathering |
 | Karl Vincent C. Samonte | Data Gathering |
 
 ## GitHub Workflow
@@ -259,6 +259,6 @@ docs: update README setup steps
 |---|---|---|---|
 | 1 | 25-03341 | Rodrigo B. Alderite Jr. | potzkie1906 |
 | 2 | 25-00846 | Red Zildjian C. Sepillo | zildpula |
-| 3 | 25-05723 | Kirk Em Neo M. Legasi | KirkEmNeo15 |
-| 4 | 25-04055 | Samonte, Karl Vincent C. | karlvincentsamonte |
+| 3 | 25-05723 | Kirk Em Neo M. Legaspi | KirkEmNeo15 |
+| 4 | 25-04055 | Karl Vincent C. Samonte | karlvincentsamonte |
 
