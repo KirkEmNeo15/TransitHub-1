@@ -1,17 +1,14 @@
-# TransitHub: Transportation Management and Route Mapping System
+# Routa
 
 > **Demo data notice:** All routes, stops, fares, schedules, vehicles and drivers in this project are
 > fictional sample data for a school project. They are **not** official transportation
 > information. TransitHub does **not** provide live GPS tracking, traffic or arrival times.
 
 ## Project Description
-TransitHub is a full-stack web application where commuters can explore public transportation
-routes (bus, jeepney and van) on an interactive map, search for routes between two places,
-and view stops, fares and operating hours. Administrators manage routes, stops, transportation,
-alerts and users. The sample data is set around Lipa City and Batangas City.
+Routa is a full-stack web application that helps commuters explore public transportation routes such as buses, jeepneys, and vans through an interactive map.
+Users can search for routes between two places and view important information such as stops, fares, and operating hours. 
+Administrators can manage routes, stops, transportation information, and alerts through the system.
 
-The backend is written in Java with Spring Boot and is designed to show the four OOP principles
-(abstraction, encapsulation, inheritance and polymorphism) in a real, working system.
 
 ## Problem Being Addressed
 _TODO (team): describe the commuter problem in your own words, for example that route information is
