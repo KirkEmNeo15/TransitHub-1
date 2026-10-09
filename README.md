@@ -12,16 +12,17 @@ Users can search for routes between two places and view important information su
 
 - What problem are you addressing? 
 
-Routa addresses this problem by providing transportation information in one
-centralized system where users can easily search for routes, view stops on a map, and
-check available transportation details.
+  Routa addresses this problem by providing transportation information in one
+  centralized system where users can easily search for routes, view stops on a map, and
+  check available transportation details.
 
 - Who experiences the problem?
 
-Mostly Students and Other commuters new to the area
+  Mostly Students and Other commuters new to the area
 
 - Why is it important to solve?
-It is important to solve this problem because students and other commuters may have difficulty finding reliable and organized transportation information. Routa provides route details, stops, fares, and operating hours in one centralized system, making transportation information easier to access and understand. 
+
+  It is important to solve this problem because students and other commuters may have difficulty finding reliable     and organized transportation information. Routa provides route details, stops, fares, and operating hours in one     centralized system, making transportation information easier to access and understand. 
 
 
 ## Project Objectives
