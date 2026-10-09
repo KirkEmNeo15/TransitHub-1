@@ -27,7 +27,8 @@ Users can search for routes between two places and view important information su
 
 ## Project Objectives
  **General Objective**
-To develop a Java-based application that will allow users to view transportation routes and stops using an interactive map. 	
+ 
+ To develop a Java-based application that will allow users to view transportation routes and stops using an interactive map. 	
 
 **Specific Objectives**
 The project aims to:
