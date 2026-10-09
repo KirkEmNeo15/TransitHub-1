@@ -2,7 +2,7 @@
 
 > **Demo data notice:** All routes, stops, fares, schedules, vehicles and drivers in this project are
 > fictional sample data for a school project. They are **not** official transportation
-> information. TransitHub does **not** provide live GPS tracking, traffic or arrival times.
+> information. Routa does **not** provide live GPS tracking, traffic or arrival times.
 
 ## Project Description
 Routa is a full-stack web application that helps commuters explore public transportation routes such as buses, jeepneys, and vans through an interactive map.
