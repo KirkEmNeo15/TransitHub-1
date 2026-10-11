@@ -10,6 +10,7 @@ import MapView from '../components/MapView'
 import RouteSearch from '../components/RouteSearch'
 import RouteSummary from '../components/RouteSummary'
 import { useApiData } from '../hooks/useApiData'
+import { useCityBoundary } from '../hooks/useCityBoundary'
 import {useRoadLines} from '../hooks/useRoadLines'
 import { getRoutes, searchRoutes } from '../services/routeService'
 import { getStops } from '../services/stopService'
@@ -45,6 +46,9 @@ export default function MapPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const routesData = useApiData(loadAllRoutes)
   const stopsData = useApiData(loadAllStops)
+    // the Batangas City outline; if it cannot load, the map still works without it
+  const cityBoundary = useCityBoundary()
+  const boundary = cityBoundary.state.status === 'success' ? cityBoundary.state.data : null
 
   const [filters, setFilters] = useState<MapFilterState>(INITIAL_FILTERS)
   const [query, setQuery] = useState('')
@@ -85,25 +89,20 @@ const [tapInfo, setTapInfo] = useState<TapInfo | null>(null)
     })
   }, [allRoutes, filters, query])
 
-  const visibleStops = useMemo(() => {
-    // only stops that belong to at least one visible route
-    const ids = new Set(visibleRoutes.flatMap((route) => route.stops.map((routeStop) => routeStop.stop.id)))
-    return allStops.filter((stop) => ids.has(stop.id))
-  }, [visibleRoutes, allStops])
-
   const selectedRoute = visibleRoutes.find((route) => route.id === selectedRouteId) ?? null
   const visibleIds = new Set(visibleRoutes.map((route) => route.id))
 
-  // the map zooms to the selected route, else to the search results, else to all routes
+    // the map zooms to the selected route, else to the search results, else to the whole city
   const focusBounds = useMemo<LatLngTuple[] | null>(() => {
-    let source: Route[] = allRoutes
+    let source: Route[] = []
     if (selectedRoute) source = [selectedRoute]
     else if (searchResults.length > 0) source = searchResults
     const points = source.flatMap((route) =>
       route.path.map((point): LatLngTuple => [point.latitude, point.longitude]),
     )
-    return points.length > 0 ? points : null
-  }, [selectedRoute, searchResults, allRoutes])
+    if (points.length > 0) return points
+    return boundary ? [boundary.bounds[0], boundary.bounds[1]] : null
+  }, [selectedRoute, searchResults, boundary])
 
         // ----- taps on the map -----
 
@@ -139,7 +138,7 @@ const [tapInfo, setTapInfo] = useState<TapInfo | null>(null)
       <div>
         <h1 className="text-2xl font-bold">Map</h1>
         <p className="text-slate-600">
-          Click a route line or a stop for details. All data is fictional demo data.
+          Tap a road or a stop to see its routes, fare and travel time. Terminals are the green markers.
         </p>
       </div>
 
@@ -253,7 +252,8 @@ const [tapInfo, setTapInfo] = useState<TapInfo | null>(null)
           <div className="relative isolate h-[60vh] min-h-[420px] overflow-hidden rounded-xl border border-slate-200 shadow-sm">
             <MapView
               routes={visibleRoutes}
-              stops={visibleStops}
+              stops={allStops}
+              boundary={boundary}
               selectedRoute={selectedRoute}
               selectedStopId={tapInfo?.kind === 'stop' ? tapInfo.stop.id : null}
               highlightedRouteIds={highlightedIds}

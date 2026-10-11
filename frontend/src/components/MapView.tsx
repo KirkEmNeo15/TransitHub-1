@@ -1,15 +1,18 @@
-import { Fragment, useEffect } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import type { LatLngTuple } from 'leaflet'
 import { CircleMarker, MapContainer, Polyline, TileLayer, Tooltip, useMap, useMapEvents } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import type { Route } from '../types/Route'
 import type { Stop } from '../types/Stop'
+import type { CityBoundary } from '../utils/boundary'
 import { colorForType } from '../utils/transportColors'
+import BoundaryLayer from './BoundaryLayer'
 import StopMarker from './StopMarker'
 
 interface MapViewProps {
   routes: Route[] // the routes to draw
   stops: Stop[] // the stops to draw
+  boundary: CityBoundary | null // the Batangas City outline (null while it loads)
   selectedRoute: Route | null
   selectedStopId: number | null // the tapped stop or terminal
   // routes found by a search (the others are dimmed); null when no search is active
@@ -21,8 +24,9 @@ interface MapViewProps {
   onStopTap: (stop: Stop) => void
 }
 
-const DEFAULT_CENTER: LatLngTuple = [13.94, 121.16] // Lipa City
-const DEFAULT_ZOOM = 11
+// Batangas City, used only until the boundary or the routes are loaded
+const DEFAULT_CENTER: LatLngTuple = [13.76, 121.08]
+const DEFAULT_ZOOM = 12
 
 /** Zooms the map to show a set of points whenever that set changes. */
 function FitBounds({ bounds }: { bounds: LatLngTuple[] | null }) {
@@ -32,6 +36,15 @@ function FitBounds({ bounds }: { bounds: LatLngTuple[] | null }) {
       map.fitBounds(bounds, { padding: [40, 40] })
     }
   }, [map, bounds])
+  return null
+}
+/** Reports the zoom level after every zoom, so the city name can change size. */
+function ZoomWatcher({ onZoom }: { onZoom: (zoom: number) => void }) {
+  const map = useMapEvents({
+    zoomend() {
+      onZoom(map.getZoom())
+    },
+  })
   return null
 }
 
@@ -48,6 +61,7 @@ function TapHandler({ onTap }: { onTap: MapViewProps['onMapTap'] }) {
 export default function MapView({
   routes,
   stops,
+  boundary,
   selectedRoute,
   selectedStopId,
   highlightedRouteIds,
@@ -58,6 +72,7 @@ export default function MapView({
   onStopTap,
 }: MapViewProps) {
   // Drawing order: dimmed routes first, then search results, and the selected route last (on top).
+  const [zoom, setZoom] = useState(DEFAULT_ZOOM)
   const importance = (route: Route) =>
     route.id === selectedRoute?.id ? 2 : highlightedRouteIds === null || highlightedRouteIds.has(route.id) ? 1 : 0
   const drawOrder = [...routes].sort((a, b) => importance(a) - importance(b))
@@ -70,6 +85,10 @@ export default function MapView({
       />
       <FitBounds bounds={focusBounds} />
       <TapHandler onTap={onMapTap} />
+      <ZoomWatcher onZoom={setZoom} />
+
+      {/* the official city outline, under everything else */}
+      {boundary && <BoundaryLayer boundary={boundary} zoom={zoom} />}
 
       {/* route lines (a tap on a line reaches TapHandler, which finds every route there) */}
       {drawOrder

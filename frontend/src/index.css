@@ -16,3 +16,34 @@ body {
   background-color: var(--color-background);
   color: var(--color-secondary);
 }
+
+/* ----- map: Batangas City outline and name ----- */
+.th-boundary-glow {
+  filter: blur(5px);
+}
+
+.th-city-label {
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  font-weight: 800;
+  letter-spacing: 0.32em;
+  color: #1e3a8a;
+  text-shadow: 0 0 4px #fff, 0 0 10px #fff;
+  pointer-events: none;
+}
+
+.th-city-label--faint {
+  opacity: 0.35;
+}
+
+/* ----- map: terminal name labels ----- */
+.leaflet-tooltip.th-terminal-label {
+  background: #16a34a;
+  border-color: #15803d;
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.3);
+}
+.leaflet-tooltip-right.th-terminal-label::before {
+  border-right-color: #15803d;
+}
