@@ -115,13 +115,21 @@ const [tapInfo, setTapInfo] = useState<TapInfo | null>(null)
     const matches = routesNearPoint(visibleRoutes, latitude, longitude, tapToleranceMeters(zoom, latitude))
     setTapInfo({ kind: 'road', latitude, longitude, matches })
   }
-    // ----- road lines for the routes in the card -----
-  // the routes the card is about (useMemo keeps the same array until the next tap)
-  const tappedRoutes = useMemo<Route[]>(() => {
-    if (!tapInfo) return []
-    return tapInfo.kind === 'road' ? tapInfo.matches.map((match) => match.route) : tapInfo.trips.map((trip) => trip.route)
-  }, [tapInfo])
-  const roadLines = useRoadLines(tappedRoutes)
+     // ----- the route drawn on the map -----
+  // Only the selected route is drawn, so several routes on the same road never pile up.
+  // (useMemo keeps the same array until the selection changes, which useRoadLines needs.)
+  const shownRoutes = useMemo<Route[]>(() => (selectedRoute ? [selectedRoute] : []), [selectedRoute])
+  const roadLines = useRoadLines(shownRoutes)
+
+  // a route in the card: show it on the map, or hide it again if it is already shown
+  const toggleRoute = (routeId: number) => {
+    setSelectedRouteId((current) => (current === routeId ? null : routeId))
+  }
+    // closing the card also hides the route it was showing
+  const closeCard = () => {
+    setTapInfo(null)
+    setSelectedRouteId(null)
+  }
   // ----- loading and errors -----
   if (routesData.state.status === 'loading' || stopsData.state.status === 'loading') {
     return <LoadingSpinner label="Loading the map data..." />
@@ -251,7 +259,7 @@ const [tapInfo, setTapInfo] = useState<TapInfo | null>(null)
           {/* "isolate" keeps the map's controls below the sticky navigation bar */}
           <div className="relative isolate h-[60vh] min-h-[420px] overflow-hidden rounded-xl border border-slate-200 shadow-sm">
             <MapView
-              routes={visibleRoutes}
+              routes={shownRoutes}
               stops={allStops}
               boundary={boundary}
               selectedRoute={selectedRoute}
@@ -269,8 +277,9 @@ const [tapInfo, setTapInfo] = useState<TapInfo | null>(null)
                 <MapInfoCard 
                   info={tapInfo} 
                   status={roadLines.loading ? 'Drawing the road lines...' : undefined}
-                  onClose={() => setTapInfo(null)} 
-                  onShowRoute={setSelectedRouteId} 
+                  onClose={closeCard} 
+                  selectedRouteId={selectedRoute?.id ?? null}
+                  onShowRoute={toggleRoute} 
                 />
               </div>
             )}
