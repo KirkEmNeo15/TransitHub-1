@@ -10,6 +10,7 @@ import MapView from '../components/MapView'
 import RouteSearch from '../components/RouteSearch'
 import RouteSummary from '../components/RouteSummary'
 import { useApiData } from '../hooks/useApiData'
+import { useCityBoundary } from '../hooks/useCityBoundary'
 import {useRoadLines} from '../hooks/useRoadLines'
 import { getRoutes, searchRoutes } from '../services/routeService'
 import { getStops } from '../services/stopService'
@@ -19,6 +20,7 @@ import { formatDuration, formatPeso } from '../utils/format'
 import { colorForType } from '../utils/transportColors'
 import type { TapInfo } from '../utils/mapTap'
 import { routesNearPoint, tapToleranceMeters, tripsFromStop } from '../utils/mapTap'
+import { isTerminal } from '../utils/stops'
 
 const NO_ROUTES: Route[] = []
 const NO_STOPS: Stop[] = []
@@ -45,6 +47,9 @@ export default function MapPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const routesData = useApiData(loadAllRoutes)
   const stopsData = useApiData(loadAllStops)
+    // the Batangas City outline; if it cannot load, the map still works without it
+  const cityBoundary = useCityBoundary()
+  const boundary = cityBoundary.state.status === 'success' ? cityBoundary.state.data : null
 
   const [filters, setFilters] = useState<MapFilterState>(INITIAL_FILTERS)
   const [query, setQuery] = useState('')
@@ -74,6 +79,8 @@ const [tapInfo, setTapInfo] = useState<TapInfo | null>(null)
 
   const allRoutes = routesData.state.status === 'success' ? routesData.state.data : NO_ROUTES
   const allStops = stopsData.state.status === 'success' ? stopsData.state.data : NO_STOPS
+    // only terminals get a pin; jeepneys on a circulating route pick up anywhere on the road, not at fixed stops
+  const terminalStops = useMemo(() => allStops.filter(isTerminal), [allStops])
 
   // ----- what is shown, after the filters -----
   const visibleRoutes = useMemo(() => {
@@ -85,25 +92,20 @@ const [tapInfo, setTapInfo] = useState<TapInfo | null>(null)
     })
   }, [allRoutes, filters, query])
 
-  const visibleStops = useMemo(() => {
-    // only stops that belong to at least one visible route
-    const ids = new Set(visibleRoutes.flatMap((route) => route.stops.map((routeStop) => routeStop.stop.id)))
-    return allStops.filter((stop) => ids.has(stop.id))
-  }, [visibleRoutes, allStops])
-
   const selectedRoute = visibleRoutes.find((route) => route.id === selectedRouteId) ?? null
   const visibleIds = new Set(visibleRoutes.map((route) => route.id))
 
-  // the map zooms to the selected route, else to the search results, else to all routes
+    // the map zooms to the selected route, else to the search results, else to the whole city
   const focusBounds = useMemo<LatLngTuple[] | null>(() => {
-    let source: Route[] = allRoutes
+    let source: Route[] = []
     if (selectedRoute) source = [selectedRoute]
     else if (searchResults.length > 0) source = searchResults
     const points = source.flatMap((route) =>
       route.path.map((point): LatLngTuple => [point.latitude, point.longitude]),
     )
-    return points.length > 0 ? points : null
-  }, [selectedRoute, searchResults, allRoutes])
+    if (points.length > 0) return points
+    return boundary ? [boundary.bounds[0], boundary.bounds[1]] : null
+  }, [selectedRoute, searchResults, boundary])
 
         // ----- taps on the map -----
 
@@ -116,13 +118,21 @@ const [tapInfo, setTapInfo] = useState<TapInfo | null>(null)
     const matches = routesNearPoint(visibleRoutes, latitude, longitude, tapToleranceMeters(zoom, latitude))
     setTapInfo({ kind: 'road', latitude, longitude, matches })
   }
-    // ----- road lines for the routes in the card -----
-  // the routes the card is about (useMemo keeps the same array until the next tap)
-  const tappedRoutes = useMemo<Route[]>(() => {
-    if (!tapInfo) return []
-    return tapInfo.kind === 'road' ? tapInfo.matches.map((match) => match.route) : tapInfo.trips.map((trip) => trip.route)
-  }, [tapInfo])
-  const roadLines = useRoadLines(tappedRoutes)
+     // ----- the route drawn on the map -----
+  // Only the selected route is drawn, so several routes on the same road never pile up.
+  // (useMemo keeps the same array until the selection changes, which useRoadLines needs.)
+  const shownRoutes = useMemo<Route[]>(() => (selectedRoute ? [selectedRoute] : []), [selectedRoute])
+  const roadLines = useRoadLines(shownRoutes)
+
+  // a route in the card: show it on the map, or hide it again if it is already shown
+  const toggleRoute = (routeId: number) => {
+    setSelectedRouteId((current) => (current === routeId ? null : routeId))
+  }
+    // closing the card also hides the route it was showing
+  const closeCard = () => {
+    setTapInfo(null)
+    setSelectedRouteId(null)
+  }
   // ----- loading and errors -----
   if (routesData.state.status === 'loading' || stopsData.state.status === 'loading') {
     return <LoadingSpinner label="Loading the map data..." />
@@ -139,7 +149,7 @@ const [tapInfo, setTapInfo] = useState<TapInfo | null>(null)
       <div>
         <h1 className="text-2xl font-bold">Map</h1>
         <p className="text-slate-600">
-          Click a route line or a stop for details. All data is fictional demo data.
+          Tap a road or a stop to see its routes, fare and travel time. Terminals are the green markers.
         </p>
       </div>
 
@@ -252,8 +262,9 @@ const [tapInfo, setTapInfo] = useState<TapInfo | null>(null)
           {/* "isolate" keeps the map's controls below the sticky navigation bar */}
           <div className="relative isolate h-[60vh] min-h-[420px] overflow-hidden rounded-xl border border-slate-200 shadow-sm">
             <MapView
-              routes={visibleRoutes}
-              stops={visibleStops}
+              routes={shownRoutes}
+              stops={terminalStops}
+              boundary={boundary}
               selectedRoute={selectedRoute}
               selectedStopId={tapInfo?.kind === 'stop' ? tapInfo.stop.id : null}
               highlightedRouteIds={highlightedIds}
@@ -269,8 +280,9 @@ const [tapInfo, setTapInfo] = useState<TapInfo | null>(null)
                 <MapInfoCard 
                   info={tapInfo} 
                   status={roadLines.loading ? 'Drawing the road lines...' : undefined}
-                  onClose={() => setTapInfo(null)} 
-                  onShowRoute={setSelectedRouteId} 
+                  onClose={closeCard} 
+                  selectedRouteId={selectedRoute?.id ?? null}
+                  onShowRoute={toggleRoute} 
                 />
               </div>
             )}

@@ -1,5 +1,7 @@
-import { CircleMarker, Tooltip } from 'react-leaflet'
+import { CircleMarker, Marker, Tooltip } from 'react-leaflet'
 import type { Stop } from '../types/Stop'
+import {isTerminal} from '../utils/stops'
+import { selectedTerminalPin, terminalPin } from './terminalIcon'
 
 interface StopMarkerProps {
   stop: Stop
@@ -7,17 +9,38 @@ interface StopMarkerProps {
   onTap: (stop: Stop) => void
 }
 
-/** A transportation stop or terminal on the map. Tap it to see the routes that leave from it. */
+/**
+ * A transportation stop or terminal on the map. Tap it to see the routes that leave from it.
+ * A terminal is a glowing green pin with a bus symbol, and its name is always shown next to it.
+ */
 export default function StopMarker({ stop, selected, onTap }: StopMarkerProps) {
+  if (isTerminal(stop)) {
+    return (
+      <Marker
+        position={[stop.latitude, stop.longitude]}
+        icon={selected ? selectedTerminalPin : terminalPin}
+        zIndexOffset={selected ? 1000 : 500} // terminals above ordinary stops
+        title={stop.name}
+        // a Marker click never reaches the map below, so it is not ALSO a tap on the road
+        eventHandlers={{ click: () => onTap(stop) }}
+      >
+        {/* "permanent" = always visible, not only on hover */}
+        <Tooltip permanent direction="right" offset={[10, 0]} className="th-terminal-label">
+          {stop.name}
+        </Tooltip>
+      </Marker>
+    )
+  }
+
   return (
     <CircleMarker
       center={[stop.latitude, stop.longitude]}
       radius={selected ? 10 : 7}
       // bubblingMouseEvents: false = this click is not ALSO treated as a tap on the road below
       pathOptions={{
-        color: '#0f172a',
+        color: '#6366f1',
         weight: 2,
-        fillColor: selected ? '#2563eb' : '#ffffff',
+        fillColor: selected ? '#6366f1' : '#ffffff',
         fillOpacity: 1,
         bubblingMouseEvents: false,
       }}
