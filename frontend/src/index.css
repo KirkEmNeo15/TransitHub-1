@@ -94,3 +94,11 @@ body {
   color: #4f46e5;
   border-bottom-color: #eef2ff;
 }
+/* direction arrows on the selected route (a thin white outline keeps them visible on any line color) */
+.th-route-arrow {
+  width: 12px;
+  height: 12px;
+  color: #111827;
+  filter: drop-shadow(0 0 1px #fff) drop-shadow(0 0 1px #fff);
+  pointer-events: none;
+}
