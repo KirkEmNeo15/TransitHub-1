@@ -17,33 +17,80 @@ body {
   color: var(--color-secondary);
 }
 
-/* ----- map: Batangas City outline and name ----- */
-.th-boundary-glow {
-  filter: blur(5px);
+/* ------------------------------------------------------------------ soft grey map */
+
+/* background shown before the map pictures (tiles) arrive */
+.th-map {
+  background: #eceef3;
+  font-family: inherit;
 }
 
+/* The free OpenStreetMap tiles made soft grey with CSS filters only (no API key):
+   take most of the color out, then make it a little lighter and softer. */
+.th-tiles-soft {
+  filter: grayscale(0.85) brightness(1.06) contrast(0.88);
+}
+
+/* city outline: a soft blurred glow under a sharp indigo line */
+.th-boundary-glow {
+  filter: blur(6px);
+}
+
+/* the city name, written once in the middle of the city */
 .th-city-label {
   transform: translate(-50%, -50%);
   white-space: nowrap;
   font-weight: 800;
   letter-spacing: 0.32em;
-  color: #1e3a8a;
-  text-shadow: 0 0 4px #fff, 0 0 10px #fff;
+  color: #4f46e5;
+  text-shadow: 0 0 4px #fff, 0 0 12px #fff;
   pointer-events: none;
 }
-
 .th-city-label--faint {
   opacity: 0.35;
 }
 
-/* ----- map: terminal name labels ----- */
-.leaflet-tooltip.th-terminal-label {
+/* terminal pin: green circle with a bus symbol and a soft green glow */
+.th-terminal-pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
   background: #16a34a;
-  border-color: #15803d;
   color: #fff;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.22), 0 4px 12px rgba(15, 23, 42, 0.25);
+}
+.th-terminal-pin--selected {
+  background: #22c55e;
+  box-shadow: 0 0 0 8px rgba(34, 197, 94, 0.3), 0 6px 18px rgba(15, 23, 42, 0.3);
+}
+
+/* terminal name: a white rounded card next to the pin */
+.leaflet-tooltip.th-terminal-label {
+  background: #fff;
+  color: #1e293b;
+  border: none;
+  border-radius: 12px;
+  padding: 6px 12px;
   font-weight: 600;
-  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.3);
+  font-size: 13px;
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.18);
 }
 .leaflet-tooltip-right.th-terminal-label::before {
-  border-right-color: #15803d;
+  border-right-color: #fff;
+}
+
+/* zoom buttons: white rounded card with indigo symbols */
+.th-map .leaflet-bar {
+  border: none;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.18);
+}
+.th-map .leaflet-bar a,
+.th-map .leaflet-bar a:hover {
+  background: #fff;
+  color: #4f46e5;
+  border-bottom-color: #eef2ff;
 }

@@ -5,6 +5,7 @@ import 'leaflet/dist/leaflet.css'
 import type { Route } from '../types/Route'
 import type { Stop } from '../types/Stop'
 import type { CityBoundary } from '../utils/boundary'
+import { isTerminal } from '../utils/stops'
 import { colorForType } from '../utils/transportColors'
 import BoundaryLayer from './BoundaryLayer'
 import StopMarker from './StopMarker'
@@ -131,24 +132,29 @@ export default function MapView({
             })
           }
 
-      {/* start and end of the selected route */}
+            {/* start and end of the selected route, only where that end is a terminal
+          (a circulating route has no fixed start or end, so it gets no rings) */}
       {selectedRoute && selectedRoute.stops.length >= 2 && (
         <>
-          <CircleMarker
-            center={[selectedRoute.stops[0].stop.latitude, selectedRoute.stops[0].stop.longitude]}
-            radius={11}
-            pathOptions={{ color: '#16a34a', weight: 4, fill: false }}
-            interactive={false}
-          />
-          <CircleMarker
-            center={[
-              selectedRoute.stops[selectedRoute.stops.length - 1].stop.latitude,
-              selectedRoute.stops[selectedRoute.stops.length - 1].stop.longitude,
-            ]}
-            radius={11}
-            pathOptions={{ color: '#dc2626', weight: 4, fill: false }}
-            interactive={false}
-          />
+          {isTerminal(selectedRoute.stops[0].stop) && (
+            <CircleMarker
+              center={[selectedRoute.stops[0].stop.latitude, selectedRoute.stops[0].stop.longitude]}
+              radius={11}
+              pathOptions={{ color: '#22c55e', weight: 4, fill: false }}
+              interactive={false}
+            />
+          )}
+          {isTerminal(selectedRoute.stops[selectedRoute.stops.length - 1].stop) && (
+            <CircleMarker
+              center={[
+                selectedRoute.stops[selectedRoute.stops.length - 1].stop.latitude,
+                selectedRoute.stops[selectedRoute.stops.length - 1].stop.longitude,
+              ]}
+              radius={11}
+              pathOptions={{ color: '#ef4444', weight: 4, fill: false }}
+              interactive={false}
+            />
+          )}
         </>
       )}
 
@@ -157,7 +163,7 @@ export default function MapView({
         <CircleMarker
           center={tapPoint}
           radius={9}
-          pathOptions={{ color: '#ffffff', weight: 2, fillColor: '#2563eb', fillOpacity: 0.6 }}
+          pathOptions={{ color: '#ffffff', weight: 2, fillColor: '#6366f1', fillOpacity: 0.6 }}
           interactive={false}
         />
       )}

@@ -20,6 +20,7 @@ import { formatDuration, formatPeso } from '../utils/format'
 import { colorForType } from '../utils/transportColors'
 import type { TapInfo } from '../utils/mapTap'
 import { routesNearPoint, tapToleranceMeters, tripsFromStop } from '../utils/mapTap'
+import { isTerminal } from '../utils/stops'
 
 const NO_ROUTES: Route[] = []
 const NO_STOPS: Stop[] = []
@@ -78,6 +79,8 @@ const [tapInfo, setTapInfo] = useState<TapInfo | null>(null)
 
   const allRoutes = routesData.state.status === 'success' ? routesData.state.data : NO_ROUTES
   const allStops = stopsData.state.status === 'success' ? stopsData.state.data : NO_STOPS
+    // only terminals get a pin; jeepneys on a circulating route pick up anywhere on the road, not at fixed stops
+  const terminalStops = useMemo(() => allStops.filter(isTerminal), [allStops])
 
   // ----- what is shown, after the filters -----
   const visibleRoutes = useMemo(() => {
@@ -260,7 +263,7 @@ const [tapInfo, setTapInfo] = useState<TapInfo | null>(null)
           <div className="relative isolate h-[60vh] min-h-[420px] overflow-hidden rounded-xl border border-slate-200 shadow-sm">
             <MapView
               routes={shownRoutes}
-              stops={allStops}
+              stops={terminalStops}
               boundary={boundary}
               selectedRoute={selectedRoute}
               selectedStopId={tapInfo?.kind === 'stop' ? tapInfo.stop.id : null}
