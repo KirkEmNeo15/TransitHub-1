@@ -1,267 +1,431 @@
-# Routa
+# Routa: Transportation Management and Route Mapping System
 
-> **Demo data notice:** All routes, stops, fares, schedules, vehicles and drivers in this project are
-> fictional sample data for a school project. They are **not** official transportation
-> information. Routa does **not** provide live GPS tracking, traffic or arrival times.
+> **Demo data notice:** All routes, stops, fares, schedules, vehicles,
+> and drivers in this project are fictional sample data for a school
+> project. They are **not** official transportation information. Routa
+> does **not** provide live GPS tracking, live traffic information, or
+> real-time arrival estimates.
 
 ## Project Description
-Routa is a full-stack web application that helps commuters explore public transportation routes such as buses, jeepneys, and vans through an interactive map.
-Users can search for routes between two places and view important information such as stops, fares, and operating hours. Administrators can manage routes, stops, transportation information, and alerts through the system.
 
-## Guide Questions:
+Routa is a full-stack web application designed to help commuters in
+Batangas City explore public transportation routes, including jeepneys,
+buses, and vans, through an interactive map. Users can search for direct
+routes between two places and view route details such as stops,
+transportation type, fares, and operating hours. Registered users can
+save favorite routes and report incorrect or outdated information.
+Administrators can manage route information and service alerts.
 
-- What problem are you addressing? 
+The project is developed for OOP 101 and uses Java with Spring Boot for
+the backend and React for the frontend.
 
-  Routa addresses this problem by providing transportation information in one
-  centralized system where users can easily search for routes, view stops on a map, and
-  check available transportation details.
+## Problem Being Addressed
 
-- Who experiences the problem?
-
-  Mostly Students and Other commuters new to the area
-
-- Why is it important to solve?
-
-  It is important to solve this problem because students and other commuters may have difficulty finding reliable     and organized transportation information. Routa provides route details, stops, fares, and operating hours in one     centralized system, making transportation information easier to access and understand. 
-
+Transportation information can be scattered, outdated, or difficult to
+find, especially for students and commuters who are unfamiliar with an
+area. Routa brings route details, stops, fares, and operating hours
+together in one place to make this information easier to access and
+understand.
 
 ## Project Objectives
- **General Objective**
- 
- To develop a Java-based application that will allow users to view transportation routes and stops using an interactive map. 	
 
-**Specific Objectives**
+### General Objective
 
-The project aims to:
+To develop a web-based transit information system, using a Java (Spring
+Boot) backend and a React frontend, that allows commuters in Batangas
+City to view jeepney routes on a map, search for direct routes between
+two places, and view available fare and route information.
 
-- To allow users to search and view available transportation routes.
-- To display transportation stops and routes through an interactive map.
-- To provide users with information about fares and operating hours.
-- To allow users to save their favorite transportation routes.
-- To apply Java Object-Oriented Programming concepts in developing the system.
-- To provide administrators with a way to manage transportation information.
+### Specific Objectives
+
+-   Allow users to search for and view available transportation routes.
+-   Display transportation routes and stops through an interactive map.
+-   Provide information about fares and operating hours.
+-   Allow registered users to save favorite transportation routes.
+-   Apply Java Object-Oriented Programming concepts in the system.
+-   Provide administrators with tools to manage transportation
+    information.
 
 ## Target Users
-- **Commuters:** view and search routes, save favorites, read alerts, report wrong information.
+
+-   **Commuters and students:** Search and view available routes, check
+    stops and fare information, save favorite routes, read service
+    alerts, and report incorrect route details.
+-   **Administrators:** Manage routes, stops, transportation
+    information, and service alerts.
 
 ## Main Features
 
-**For everyone (no login)**
-- Home page with statistics and a short introduction
-- Route list with filters by transportation type, and route details (stops in order, fare, schedule, status)
-- Interactive map (Leaflet + OpenStreetMap): colored route lines by type, stop markers, filters, text search
-- Route search from one place to another (direct routes, fastest or cheapest first), also from two points picked on the map
-- Service alerts
+### Public Features
 
-**For logged-in users**
-- Register, log in, log out (JWT login)
-- Favorite routes
-- Report wrong or outdated route information
-- Profile page
+-   Home page with an introduction and system statistics.
+-   Browse and filter routes by transportation type.
+-   View route details, including stops, fare, schedule, and status.
+-   Interactive map with route lines and stop markers.
+-   Search for direct routes between an origin and a destination.
+-   View service alerts.
 
+### Registered User Features
+
+-   Register, log in, and log out using JWT-based authentication.
+-   Save and view favorite routes.
+-   Report incorrect or outdated route information.
+-   View and manage a profile.
+
+### Administrator Features
+
+-   Manage transportation routes and stops.
+-   Manage transportation information and service alerts.
+-   Review user reports and access administrative information.
 
 ## Technologies Used
-| Layer | Technology |
-|---|---|
-| Frontend | React, TypeScript, Vite, Tailwind CSS, React Router, Axios, Leaflet, React Leaflet |
-| Backend | Java 21, Spring Boot, Spring Web, Spring Data JPA, Spring Security (JWT), Maven |
-| Database | PostgreSQL (run with Docker Compose) |
-| Map | Leaflet + OpenStreetMap tiles |
-| Testing | JUnit 5 and Spring Boot Test (backend), Vitest and React Testing Library (frontend) |
-| Tools | Git, GitHub, Docker Compose, VS Code |
+
+  -----------------------------------------------------------------------
+  Layer                               Technology
+  ----------------------------------- -----------------------------------
+  Frontend                            React, TypeScript, Vite, Tailwind
+                                      CSS, React Router, Axios
+
+  Map                                 Leaflet, React Leaflet,
+                                      OpenStreetMap
+
+  Backend                             Java 21, Spring Boot, Spring Web,
+                                      Spring Data JPA, Spring Security,
+                                      JWT, Maven
+
+  Database                            PostgreSQL
+
+  Local database environment          Docker Compose
+
+  Testing                             JUnit 5, Spring Boot Test, Vitest,
+                                      React Testing Library
+
+  Development tools                   Git, GitHub, VS Code, Docker
+                                      Compose
+  -----------------------------------------------------------------------
 
 ## Project Structure
-```
-transithub/
-├── frontend/       React + TypeScript (Vite)
-├── backend/        Spring Boot (Maven)
-├── database/       schema.sql, seed/sample-data.sql, migrations/, tools/ (road-alignment tool)
-├── docs/           API.md, DATABASE-DESIGN.md, OOP-DESIGN.md, FRONTEND-SETUP.md, TESTING.md
-├── .env.example    Template for environment variables (copy to .env)
-├── docker-compose.yml  Local PostgreSQL
+
+``` text
+Routa/
+├── frontend/          React + TypeScript application
+├── backend/           Spring Boot application
+├── database/          Database schema, sample data, migrations, and tools
+├── docs/              API, database, OOP, frontend, and testing documentation
+├── .env.example       Environment-variable template
+├── docker-compose.yml Local PostgreSQL configuration
 └── README.md
 ```
 
-Backend layers: **controller** (HTTP) → **service** (rules) → **repository** (database), with
-**dto** and **mapper** classes between the controllers and the entities, and one
-`GlobalExceptionHandler` that turns every error into the same JSON format.
+The backend follows a layered structure: **controller → service →
+repository**. DTO and mapper classes help transfer data between API
+endpoints and entities, while a global exception handler provides a
+consistent error response format.
 
-## Setup
+## Setup and Installation
 
 ### 1. Prerequisites
-- Git
-- Docker Desktop (for PostgreSQL) **or** a local PostgreSQL installation
-- Java 21 or newer (the project is built for Java 21) and the included Maven wrapper (`mvnw`)
-- Node.js 18 or newer
 
-### 2. Environment variables
-```bash
-cp .env.example .env     # Windows CMD: copy .env.example .env
+Install or prepare the following:
+
+-   Git
+-   Docker Desktop, or a local PostgreSQL installation
+-   Java 21 or newer
+-   Node.js 18 or newer
+-   The Maven wrapper included in the project
+
+### 2. Configure Environment Variables
+
+From the project root, copy the example environment file:
+
+``` bash
+cp .env.example .env
 ```
-Open `.env` and set your own values. **Never commit `.env`** (it is in `.gitignore`).
 
-| Variable | Meaning |
-|---|---|
-| `DATABASE_NAME`, `DATABASE_USERNAME`, `DATABASE_PASSWORD` | Database name and login (Docker uses them to create the database) |
-| `DATABASE_URL` | JDBC address used by Spring Boot, must match the values above |
-| `JWT_SECRET` | Long random string (32+ characters) that signs login tokens. Weak or example values are refused |
-| `JWT_EXPIRATION_MS` | Token lifetime in milliseconds (default 86400000 = 24 hours) |
-| `CORS_ALLOWED_ORIGINS` | Frontend address allowed to call the API (default `http://localhost:5173`) |
-| `DEMO_ADMIN_EMAIL`, `DEMO_ADMIN_PASSWORD` | Demo admin account created at startup (skipped if the password is empty) |
-| `DEMO_USER_EMAIL`, `DEMO_USER_PASSWORD` | Demo user account created at startup (skipped if the password is empty) |
+On Windows Command Prompt, use:
 
-### 3. Start the database
-```bash
+``` bat
+copy .env.example .env
+```
+
+Open `.env` and set your own database credentials, JWT secret, and any
+optional demo-account credentials. **Never commit your `.env` file or
+real passwords to GitHub.**
+
+Common variables include:
+
+  -----------------------------------------------------------------------
+  Variable                            Purpose
+  ----------------------------------- -----------------------------------
+  `DATABASE_NAME`                     PostgreSQL database name
+
+  `DATABASE_USERNAME`                 Database username
+
+  `DATABASE_PASSWORD`                 Database password
+
+  `DATABASE_URL`                      JDBC connection URL used by Spring
+                                      Boot
+
+  `JWT_SECRET`                        Random secret used to sign
+                                      authentication tokens
+
+  `JWT_EXPIRATION_MS`                 Token lifetime in milliseconds
+
+  `CORS_ALLOWED_ORIGINS`              Frontend origins permitted to call
+                                      the API
+
+  `DEMO_ADMIN_EMAIL`,                 Optional development admin account
+  `DEMO_ADMIN_PASSWORD`               
+
+  `DEMO_USER_EMAIL`,                  Optional development user account
+  `DEMO_USER_PASSWORD`                
+  -----------------------------------------------------------------------
+
+Use a strong, private JWT secret and your own local credentials.
+
+### 3. Start the Database
+
+From the project root, run:
+
+``` bash
 docker compose up -d
-docker compose ps        # STATUS should become "healthy"
+docker compose ps
 ```
-On the **first start with an empty database**, Docker automatically runs `database/schema.sql`
-(tables) and `database/seed/sample-data.sql` (fictional demo data: 8 routes, 8 stops, 4 transportation
-services, 6 vehicles, 5 drivers, 2 alerts).
 
-If the database already existed before these files were added, apply them once by hand
-(Git Bash / macOS / Linux):
-```bash
-docker exec -i transithub-db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"' < database/schema.sql
-docker exec -i transithub-db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"' < database/seed/sample-data.sql
-```
-Do this only once: loading the sample data twice creates duplicate rows.
+Wait for the PostgreSQL container to become healthy. On the first start
+with an empty database, the configured initialization scripts create the
+tables and load the fictional sample data.
 
-Reset everything (**deletes all database data**): `docker compose down -v` then `docker compose up -d`.
+**Warning:** Resetting the database with `docker compose down -v`
+deletes the database volume and its data. Only do this if you intend to
+start with a fresh database.
 
-### 4. Run the backend
-```bash
+### 4. Run the Backend
+
+Open a terminal and run:
+
+``` bash
 cd backend
-./mvnw spring-boot:run          # Windows CMD: mvnw spring-boot:run
+./mvnw spring-boot:run
 ```
-Open <http://localhost:8080/api/health>. You should see `"database":"UP"`. Stop the server with `Ctrl+C`.
 
-### 5. Run the frontend
-In a second terminal:
-```bash
+On Windows Command Prompt:
+
+``` bat
+mvnw spring-boot:run
+```
+
+When the backend is running, check the health endpoint:
+
+<http://localhost:8080/api/health>
+
+The expected response should indicate that the database is available.
+Stop the backend with `Ctrl+C`.
+
+### 5. Run the Frontend
+
+Open a second terminal:
+
+``` bash
 cd frontend
 npm install
 npm run dev
 ```
-Open <http://localhost:5173>. The frontend calls the backend at `http://localhost:8080`
-(change it with `VITE_API_BASE_URL` in `frontend/.env` if needed).
 
-### 6. Run the tests
-```bash
-cd backend && ./mvnw clean test      # needs the database running
-cd frontend && npm test              # after the one-time Vitest setup in docs/TESTING.md
+Open the local address shown by Vite, usually:
+
+<http://localhost:5173>
+
+The frontend normally connects to the backend at
+`http://localhost:8080`. If needed, configure `VITE_API_BASE_URL` in the
+frontend environment file according to the project's setup
+documentation.
+
+### 6. Run the Tests
+
+Backend tests:
+
+``` bash
+cd backend
+./mvnw clean test
 ```
-See [docs/TESTING.md](docs/TESTING.md) for what is tested and a manual checklist.
+
+Frontend tests:
+
+``` bash
+cd frontend
+npm test
+```
+
+Run the tests using the setup described in `docs/TESTING.md`. The
+backend tests may require the database to be running.
 
 ## Sample Accounts
-The demo accounts are created by the backend at startup, **only when you set their passwords in your own `.env`**.
-No password is stored in the code or in Git.
 
-| Role | Email (default) | Password |
-|---|---|---|
-| Admin | `admin@transithub.local` | the value of `DEMO_ADMIN_PASSWORD` in your `.env` |
-| User | `user@transithub.local` | the value of `DEMO_USER_PASSWORD` in your `.env` |
+Development demo accounts are created only when the corresponding email
+and password variables are configured in `.env`.
 
-Anyone can also register a normal account on the Register page. Nobody can register as an admin:
-an admin is a demo account or is promoted by another admin. These accounts are for development
-and the school demo only.
+  Role    Email                         Password
+  ------- ----------------------------- --------------------------------
+  Admin   Value of `DEMO_ADMIN_EMAIL`   Value of `DEMO_ADMIN_PASSWORD`
+  User    Value of `DEMO_USER_EMAIL`    Value of `DEMO_USER_PASSWORD`
 
-## OOP Principles Demonstrated
-Full explanation with class diagram: [docs/OOP-DESIGN.md](docs/OOP-DESIGN.md).
+Users can also register through the application's registration page.
+Admin access is restricted and should not be available through ordinary
+public registration. Demo accounts are intended for local development
+and school demonstrations.
 
-| Principle | Where in the code | Proof |
-|---|---|---|
-| **Abstraction** | `Transportation` is an abstract class with abstract methods `getTransportationType()` and `calculateFare(...)`. `RouteSearchService` is an interface: callers depend on the contract, not on one implementation | `TransportationPolymorphismTest` |
-| **Encapsulation** | Entity fields are private; setters validate (for example latitude must be -90 to 90). `Route.getRouteStops()` is read-only, stops are added only through `route.addRouteStop(...)`. `Coordinate` is an immutable record | `RouteEncapsulationTest` |
-| **Inheritance** | `Bus`, `Jeepney` and `Van` extend `Transportation` and inherit its shared data and helper methods. One table stores all three (`SINGLE_TABLE`) | `EntityMappingTest` |
-| **Polymorphism** | The same `calculateFare` call gives a different fare for each type (overriding). `Route.calculateFare()` never checks the type: the right subclass answers | `TransportationPolymorphismTest` |
+## Java and OOP Concepts
+
+Routa demonstrates the Java OOP concepts covered in OOP 101:
+
+  -----------------------------------------------------------------------
+  Concept                             Application in Routa
+  ----------------------------------- -----------------------------------
+  **Classes and Objects**             Classes such as `Route`, `Stop`,
+                                      `Schedule`, `Fare`, `Driver`, and
+                                      `Vehicle` represent system
+                                      entities. Objects are created from
+                                      these classes and used by the
+                                      application.
+
+  **Methods**                         Methods perform operations such as
+                                      retrieving route details, accessing
+                                      stops and schedules, and processing
+                                      route-search results.
+
+  **Encapsulation**                   Class data is kept private and
+                                      accessed through appropriate
+                                      methods such as getters and
+                                      setters.
+
+  **Inheritance**                     Transportation types can inherit
+                                      shared attributes and behaviors
+                                      from a general transportation
+                                      class.
+
+  **Polymorphism**                    Different transportation types can
+                                      provide their own behavior while
+                                      being handled through a common
+                                      transportation type.
+
+  **Abstraction**                     Common transportation concepts are
+                                      represented while unnecessary
+                                      implementation details are hidden.
+
+  **Exception Handling**              Invalid requests and missing
+                                      resources are handled with
+                                      appropriate error responses instead
+                                      of uncontrolled failures.
+
+  **Arrays and Data Handling**        Collections of routes, stops,
+                                      schedules, and other records are
+                                      processed and returned by the
+                                      application.
+  -----------------------------------------------------------------------
+
+For the detailed class design and examples, see
+[`docs/OOP-DESIGN.md`](docs/OOP-DESIGN.md).
 
 ## API Documentation
-The full list of endpoints, request bodies, error format and curl examples is in [docs/API.md](docs/API.md).
-A short overview:
 
-| Area | Examples | Who |
-|---|---|---|
-| Auth | `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me` | everyone / logged in |
-| Routes | `GET /api/routes`, `GET /api/routes/search?origin=&destination=`, `GET /api/routes/{id}` | everyone |
-| Stops | `GET /api/stops`, `GET /api/stops/nearby?lat=&lng=` | everyone |
-| Transportation, Alerts, Stats | `GET /api/transportations`, `GET /api/alerts`, `GET /api/stats` | everyone |
-| Favorites and reports | `GET /api/favorites`, `POST /api/reports` | logged-in users |
-| Create, update, delete | `POST/PUT/DELETE` on routes, stops, transportations, alerts | admin only |
-| Admin area | `GET /api/admin/stats`, `/api/admin/users`, `/api/admin/reports` | admin only |
+See [`docs/API.md`](docs/API.md) for the complete list of endpoints,
+request formats, responses, and error examples.
 
-Errors always use the same JSON format: `status`, `message`, `timestamp`, `path` and a list of field `errors`.
-More documents: [database design](docs/DATABASE-DESIGN.md), [frontend notes](docs/FRONTEND-SETUP.md).
+The API includes areas for:
 
-## Route Lines on Real Roads
-The sample routes can be redrawn along real roads with a one-time tool that uses the public OSRM routing service.
-It writes SQL that you review and apply. The running app never calls OSRM. See
-[database/tools/README.md](database/tools/README.md).
+-   Authentication and user profiles.
+-   Route browsing, route details, and direct route search.
+-   Stops and nearby-stop lookup.
+-   Transportation information, alerts, and statistics.
+-   User favorites and reports.
+-   Administrator route, stop, transportation, alert, and
+    user-management functions.
 
-## Screenshots
-_Placeholders: replace with real screenshots (save them in `docs/screenshots/`)._
-
-| Screen | File to add |
-|---|---|
-| Home page | `docs/screenshots/home.png` |
-| Routes list and search | `docs/screenshots/routes.png` |
-| Map with route lines | `docs/screenshots/map.png` |
-| Route details | `docs/screenshots/route-details.png` |
-| Admin dashboard | `docs/screenshots/admin-dashboard.png` |
-| Admin route form | `docs/screenshots/admin-route-form.png` |
+Access to protected endpoints depends on the user's role and
+authentication status.
 
 ## Known Limitations
-- Sample data only; not official transportation information.
-- Routes are stored coordinates: no live GPS, traffic or arrival times.
-- Route search finds **direct** routes only (no transfers). A place matches when a stop name contains the text you typed.
-- Vehicles, drivers, schedules and fares have no separate admin screens: schedules and fares are edited inside the
-  route form, vehicles and drivers come from the sample data.
-- The login token is kept in the browser's `localStorage`. This is simple for a school project but is not the safest
-  option against cross-site scripting (an httpOnly cookie would be, but it needs extra CSRF protection).
-- Map tiles need an internet connection (OpenStreetMap).
+
+-   The current project scope covers **Batangas City only**.
+-   Route, stop, fare, schedule, vehicle, and driver information uses
+    fictional sample data and is not official transportation
+    information.
+-   Route lines use stored coordinates; the system does not track
+    vehicles using live GPS.
+-   Live traffic information and real-time arrival estimates are not
+    provided.
+-   Route search currently supports **direct routes only**; transfers
+    between different routes are not supported.
+-   Results depend on the transportation data stored in the database.
+-   An internet connection is required to load OpenStreetMap tiles.
+-   Some transportation details may be managed as part of a route rather
+    than through separate administration screens, depending on the
+    current implementation.
 
 ## Future Improvements
-Real-time GPS tracking, traffic information, estimated arrival times, route optimization with transfers,
-a mobile app, public transportation API integration, and separate admin screens for vehicles and drivers.
 
-## Team Members and Roles
-| Name | Role |
-|---|---|
-| Rodrigo B. Alderite Jr. | Backend Developer |
-| Red Zildjian C. Sepillo | Frontend Developer |
-| Kirk Em Neo M. Legaspi | Frontend Developer and Data Gathering |
-| Karl Vincent C. Samonte | Data Gathering |
+Possible future improvements include:
 
-## GitHub Workflow
-Branches:
-```
-main                 stable, demo-ready code only
-develop              integration branch
-feature/backend      Spring Boot work
-feature/frontend     React work
-feature/maps         Leaflet map
-feature/auth         login / JWT
-feature/admin        admin dashboard
-```
-Flow: create a feature branch from `develop` → commit small changes → open a Pull Request into `develop` →
-teammate reviews → merge. Merge `develop` into `main` only when it works.
+-   Expanding coverage beyond Batangas City.
+-   Integrating verified transportation data from reliable sources.
+-   Adding transfer-aware route search.
+-   Adding live GPS tracking, traffic information, and estimated arrival
+    times.
+-   Improving route recommendations and map usability.
+-   Expanding administrative tools for managing vehicles, drivers,
+    fares, and schedules.
 
-Commit message examples:
-```
-feat: create route entity
-feat: add route REST API
-feat: implement map view
-feat: add JWT authentication
-feat: create admin route management
-fix: validate route coordinates
-docs: update README setup steps
-```
+These are possible future enhancements and are not claims about features
+currently available.
 
-## Contributors
-| No. | SR-Code | Name | GitHub Username |
-|---|---|---|---|
-| 1 | 25-03341 | Rodrigo B. Alderite Jr. | potzkie1906 |
-| 2 | 25-00846 | Red Zildjian C. Sepillo | zildpula |
-| 3 | 25-05723 | Kirk Em Neo M. Legaspi | KirkEmNeo15 |
-| 4 | 25-04055 | Karl Vincent C. Samonte | karlvincentsamonte |
+## Team Members and Responsibilities
 
+  -----------------------------------------------------------------------
+  Member                              Assigned Responsibilities
+  ----------------------------------- -----------------------------------
+  Rodrigo B. Alderite Jr.             Backend development: Spring Boot
+                                      API, routes, fares, login, and
+                                      error handling
+
+  Red Zildjian C. Sepillo             Frontend development: React pages,
+                                      route cards, and map interface
+
+  Kirk Em Neo M. Legaspi              Frontend development and data
+                                      gathering: map interface and
+                                      Batangas City route data
+
+  Karl Vincent C. Samonte             Database and data gathering:
+                                      PostgreSQL tables and data-loading
+                                      scripts
+  -----------------------------------------------------------------------
+
+## GitHub Repository
+
+Repository: [Routa](https://github.com/potzkie1906/Routa)
+
+The repository contains the project's source code and, as they are
+added, documentation, UML/class diagrams, screenshots, and other
+required project files.
+
+## Screenshots
+
+Add current screenshots of the working application to
+`docs/screenshots/` and update this table when they are available.
+
+  Screen                   Suggested File
+  ------------------------ -----------------------------------------
+  Home page                `docs/screenshots/home.png`
+  Routes list and search   `docs/screenshots/routes.png`
+  Interactive map          `docs/screenshots/map.png`
+  Route details            `docs/screenshots/route-details.png`
+  Admin dashboard          `docs/screenshots/admin-dashboard.png`
+  Admin route form         `docs/screenshots/admin-route-form.png`
+
+## Additional Documentation
+
+-   [API Documentation](docs/API.md)
+-   [Database Design](docs/DATABASE-DESIGN.md)
+-   [OOP Design](docs/OOP-DESIGN.md)
+-   [Frontend Setup](docs/FRONTEND-SETUP.md)
+-   [Testing Guide](docs/TESTING.md)
