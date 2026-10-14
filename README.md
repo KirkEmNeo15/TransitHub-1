@@ -218,7 +218,7 @@ The current version of Routa has the following limitations:
 - Internet Requirement for Maps – An internet connection is required to load map tiles from OpenStreetMap.
 - Limited Administrative Controls – Some transportation details, such as vehicles and drivers, rely on sample data and do not have separate administration screens.
 - Because of these limitations, Routa should be used as a school project demonstration and not as an official source of transportation information.
-- 
+  
 ## Future Improvements
 Routa can be improved in future versions to provide commuters with more complete and convenient transportation information. Possible improvements include:
 
