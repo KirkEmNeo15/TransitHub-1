@@ -22,6 +22,10 @@
  *   --tolerance-m <n>    simplification in meters   (default 4)
  *   --delay-ms <n>       pause between requests     (default 1200, be polite to the free server)
  *   --no-snap-stops      do not move the stops onto the road
+ *   --through-line       follow the points of each route's stored line instead of only its stops
+ *                        (for routes without fixed stops: put points along the right road in
+ *                        route_points first). Uses OSRM "match", so no extra spur lines appear.
+ *                        Stops are not moved in this mode.
  */
 import { mkdir, writeFile } from 'node:fs/promises'
 import { dirname } from 'node:path'
@@ -30,6 +34,10 @@ import { pathToFileURL } from 'node:url'
 const METERS_PER_DEGREE_LATITUDE = 110540
 const METERS_PER_DEGREE_LONGITUDE_AT_EQUATOR = 111320
 const WARN_IF_STOP_MOVES_MORE_THAN_M = 300
+// a stored line with more points than this already follows the roads (the tool wrote it)
+const MAX_GUIDE_POINTS = 90
+// --through-line: how far (m) a hand-placed point may be from the road it belongs to
+const MATCH_RADIUS_M = 45
 
 export function parseArgs(argv) {
   const options = {
@@ -39,6 +47,7 @@ export function parseArgs(argv) {
     toleranceM: 4,
     delayMs: 1200,
     snapStops: true,
+    throughLine: false,
   }
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i]
@@ -52,6 +61,7 @@ export function parseArgs(argv) {
     else if (arg === '--tolerance-m') options.toleranceM = Number(value())
     else if (arg === '--delay-ms') options.delayMs = Number(value())
     else if (arg === '--no-snap-stops') options.snapStops = false
+    else if (arg === '--through-line') options.throughLine = true
     else throw new Error(`Unknown option ${arg}`)
   }
   if (!Number.isFinite(options.toleranceM) || options.toleranceM < 0) throw new Error('--tolerance-m must be a number >= 0')
@@ -165,14 +175,78 @@ async function fetchJson(url, label) {
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
       const response = await fetch(url, { headers: { 'User-Agent': 'TransitHub-school-project/1.0', Accept: 'application/json' } })
-      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      if (!response.ok) {
+        // OSRM explains a refusal in the body, for example {"code":"NoSegment","message":"..."}
+        let detail = ''
+        try {
+          const body = await response.json()
+          detail = ` ${body.code ?? ''}${body.message ? `: ${body.message}` : ''}`
+        } catch {
+          // no JSON body
+        }
+        const error = new Error(`HTTP ${response.status}${detail}`)
+        // 4xx = the request itself was refused: asking again gives the same answer
+        if (response.status >= 400 && response.status < 500 && response.status !== 429) error.final = true
+        throw error
+      }
       return await response.json()
     } catch (error) {
       lastError = error
+      if (error?.final) break
       if (attempt < 3) await sleep(attempt * 2000)
     }
   }
   throw new Error(`${label} failed: ${lastError instanceof Error ? lastError.message : lastError}`)
+}
+/** Compass direction (0 = north, 90 = east) from point a to point b, in whole degrees. */
+export function bearingDegrees(a, b) {
+  const toRadians = (degrees) => (degrees * Math.PI) / 180
+  const lat1 = toRadians(a.latitude)
+  const lat2 = toRadians(b.latitude)
+  const dLon = toRadians(b.longitude - a.longitude)
+  const y = Math.sin(dLon) * Math.cos(lat2)
+  const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon)
+  return Math.round(((Math.atan2(y, x) * 180) / Math.PI + 360) % 360)
+}
+
+/** The driving direction at each point: from the point before it to the point after it. */
+export function travelBearings(points) {
+  return points.map((_, i) => {
+    const from = points[Math.max(0, i - 1)]
+    const to = points[Math.min(points.length - 1, i + 1)]
+    return bearingDegrees(from, to)
+  })
+}
+
+/**
+ * --through-line fallback: the normal "route" service through every point, but each point may only
+ * be placed on a road going in the driving direction (OSRM "bearings", +-60 degrees). On a divided
+ * road that picks the correct carriageway, so it does not drive past and turn back.
+ */
+async function routeAlongPoints(osrm, points) {
+  const coordinates = points.map((p) => `${p.longitude},${p.latitude}`).join(';')
+  const bearings = travelBearings(points).map((b) => `${b},60`).join(';')
+  const url = `${osrm}/route/v1/driving/${coordinates}?overview=full&geometries=geojson&steps=false&bearings=${bearings}`
+  const data = await fetchJson(url, 'Routing request')
+  if (data.code !== 'Ok' || !data.routes?.length) {
+    throw new Error(`the routing service answered "${data.code}"${data.message ? `: ${data.message}` : ''}`)
+  }
+  return {
+    points: data.routes[0].geometry.coordinates.map(([lon, lat]) => [lat, lon]),
+    snapped: [],
+    distanceKm: data.routes[0].distance / 1000,
+    durationMin: data.routes[0].duration / 60,
+  }
+}
+
+/** --through-line: "match" first; if OSRM refuses it, "route" with driving directions. */
+async function followPoints(osrm, points, routeCode) {
+  try {
+    return await matchThroughPoints(osrm, points)
+  } catch (error) {
+    console.warn(`     ${routeCode}: ${error.message}; trying the route service with driving directions`)
+    return routeAlongPoints(osrm, points)
+  }
 }
 
 /** Asks OSRM for the road through the stops. Returns the line and the snapped stop locations. */
@@ -188,6 +262,33 @@ async function routeThroughStops(osrm, stops) {
     snapped: (data.waypoints ?? []).map((w) => [w.location[1], w.location[0]]),
     distanceKm: data.routes[0].distance / 1000,
     durationMin: data.routes[0].duration / 60,
+  }
+}
+/**
+ * --through-line: follows the hand-placed points like a GPS trace (the OSRM "match" service).
+ * The "route" service must drive exactly through every point: a point on the wrong side of a
+ * divided road makes it drive past, turn around and come back, which draws short extra lines
+ * (spurs). "match" may move each point up to MATCH_RADIUS_M onto the lane that fits the direction
+ * of travel, so the line has no spurs.
+ */
+async function matchThroughPoints(osrm, points) {
+  const coordinates = points.map((p) => `${p.longitude},${p.latitude}`).join(';')
+  const radiuses = points.map(() => MATCH_RADIUS_M).join(';')
+  const url =
+    `${osrm}/match/v1/driving/${coordinates}?overview=full&geometries=geojson` +
+    `&radiuses=${radiuses}&gaps=ignore&tidy=true`
+  const data = await fetchJson(url, 'Matching request')
+  if (data.code !== 'Ok' || !data.matchings?.length) {
+    throw new Error(`the matching service answered "${data.code}"${data.message ? `: ${data.message}` : ''}`)
+  }
+  if (data.matchings.length > 1) {
+    console.warn(`WARN the line was matched in ${data.matchings.length} pieces; add a point where the pieces meet`)
+  }
+  return {
+    points: data.matchings.flatMap((m) => m.geometry.coordinates.map(([lon, lat]) => [lat, lon])),
+    snapped: [],
+    distanceKm: data.matchings.reduce((sum, m) => sum + m.distance, 0) / 1000,
+    durationMin: data.matchings.reduce((sum, m) => sum + m.duration, 0) / 60,
   }
 }
 
@@ -209,13 +310,20 @@ export async function main(argv) {
   for (const [index, route] of routes.entries()) {
     const stops = route.stops.map((rs) => rs.stop)
     if (stops.length < 2) continue
+    // --through-line: follow the hand-placed points of the stored line, so the road is the one you chose
+    const guide = route.path ?? []
+    const useLine = options.throughLine && guide.length >= 2
+    if (useLine && guide.length > MAX_GUIDE_POINTS) {
+      console.log(`SKIP ${route.routeCode.padEnd(12)} its line already has ${guide.length} points (it follows the roads)`)
+      continue
+    }
     try {
       if (index > 0) await sleep(options.delayMs)
-      const road = await routeThroughStops(options.osrm, stops)
+            const road = useLine ? await followPoints(options.osrm, guide, route.routeCode) : await routeThroughStops(options.osrm, stops)
       const points = simplify(road.points, options.toleranceM)
       results.push({ routeCode: route.routeCode, routeName: route.routeName, points })
 
-      if (options.snapStops) {
+      if (options.snapStops && !useLine) {
         stops.forEach((stop, i) => {
           if (!road.snapped[i] || stopMoves.has(stop.name)) return
           const movedM = distanceMeters([stop.latitude, stop.longitude], road.snapped[i])
